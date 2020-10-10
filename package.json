@@ -1,7 +1,7 @@
 {
-  "name": "aidol-lucky-draw",
+  "name": "@aidol/lucky-draw",
   "version": "1.0.0",
-  "description": "A lucky dip plugin for web.",
+  "description": "A lucky draw plugin for web.",
   "main": "dist/aidol-lucky-draw.umd.js",
   "module": "dist/aidol-lucky-draw.es.js",
   "scripts": {

@@ -1,2 +1,3 @@
 # aidol-lucky-draw
-A lucky dip plugin for web.
+
+A lucky draw plugin for web.

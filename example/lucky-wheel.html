@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lucky wheel demo</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="500" height="500"> Canvas not supported </canvas>
+
+    <script src="../dist/aidol-lucky-draw.umd.js"></script>
+
+    <script>
+      const { LuckyWheel } = AidolLuckyDraw;
+
+      const canvas = document.getElementById("canvas"),
+        context = canvas.getContext("2d");
+
+      new LuckyWheel({
+        centerX: canvas.width / 2,
+        centerY: canvas.height / 2,
+        outsideRadius: 200,
+
+        awards: [
+          { type: "text", content: "iphone8" },
+          { type: "text", content: "大保健" },
+          { type: "text", content: "10元话费" },
+          {
+            type: "image",
+            content:
+              "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
+          },
+          { type: "losing", content: "未中奖" },
+        ],
+
+        finish: function (index) {
+          switch (this.awards[index].type) {
+            case "text":
+              alert("🎉恭喜您中得：" + this.awards[index].content);
+              break;
+            case "image":
+              alert("🎉恭喜您中得：战争磨坊水冷机箱");
+              break;
+            case "losing":
+              alert("💔很遗憾，您没有中奖~");
+              break;
+          }
+        },
+      }).render(canvas, context);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+# pkg info
+package-lock.json
+
+# config file
+gulpfile.js
+rollup.config.js
+.babelrc.json
+
+# git
+.gitignore
+
+# others
+example/

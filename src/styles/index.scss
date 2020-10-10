@@ -1,13 +1,9 @@
-@import './mixin.scss';
+@import "./mixin.scss";
 
-.aidol-draw {
+.aidol-lucky-draw {
   background-color: $--primary-color;
   width: $--size;
   height: $--size;
   display: grid;
   grid-template-columns: repeat(2, 50%);
-
-  &__item {
-      transform: translate(100);
-  }
 }

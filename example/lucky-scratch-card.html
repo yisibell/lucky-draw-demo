@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>lucky scratch card demo</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="250" height="50"> Canvas not supported </canvas>
+
+    <script src="../dist/aidol-lucky-draw.umd.js"></script>
+    <script>
+      const { LuckyScratchCard } = AidolLuckyDraw;
+      const canvas = document.getElementById("canvas"),
+        context = canvas.getContext("2d");
+
+      new LuckyScratchCard({
+        style: "margin-top: 150px",
+        awardBackgroundImage:
+          "http://tse3.mm.bing.net/th?id=OIP.X7zblF16pKGur6refGZsWQEsDg&pid=15.1",
+      }).render(canvas, context);
+    </script>
+  </body>
+</html>

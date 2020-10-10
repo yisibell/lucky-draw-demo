@@ -9,7 +9,7 @@ export default {
     {
       file: `dist/${PKG_NAME}.umd.js`,
       format: 'umd',
-      name: 'AidolUtils'
+      name: 'AidolLuckyDraw'
     },
     {
       file: `dist/${PKG_NAME}.es.js`,
