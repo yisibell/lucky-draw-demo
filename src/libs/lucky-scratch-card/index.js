@@ -1,4 +1,4 @@
-import Global from '../../mixin'
+import Global from 'src/mixin'
 
 export default class ScratchCard extends Global {
   constructor (options) {

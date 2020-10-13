@@ -1,4 +1,4 @@
-import Global from '../../mixin'
+import Global from 'src/mixin'
 
 export default class Sudoku extends Global {
   constructor (options) {
