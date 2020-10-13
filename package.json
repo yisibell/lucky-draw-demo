@@ -8,8 +8,7 @@
     "build": "rm -rf dist && npm run build-css && npm run build-js",
     "build-css": "gulp",
     "build-js": "rollup -c",
-    "dev": "rollup -c -w",
-    "publish": "npm publish --access=public"
+    "dev": "rollup -c -w"
   },
   "repository": {
     "type": "git",
