@@ -22,8 +22,8 @@ export default class RouletteWheel extends Global {
 
     this.awards = options.awards;
 
-    this.startRadian = options.startRadian || 0;
-    this.duration = options.duration || 4000;  
+    this.startRadian = options.startRadian || 0; // 开始弧度
+    this.duration = options.duration || 4000;    // 旋转持续时间
     this.velocity = options.velocity || 10; 
 
     this.finish = options.finish;
@@ -38,11 +38,11 @@ export default class RouletteWheel extends Global {
     this.AWARDS_COUNT = this.awards.length;
     this.AWARD_RADIAN = (Math.PI * 2) / this.AWARDS_COUNT;
 
-
-    this._isAnimate = false;
-    this._spinningTime = 0;
-    this._spinTotalTime;
-    this._spinningChange;
+    // 私有变量集
+    this._isAnimate = false;   // 是否动画中
+    this._spinningTime = 0;    // 当前动画位置
+    this._spinTotalTime = 0;   // 动画所需时间
+    this._spinningChange = 0;  // 动画峰值
 
     this._canvasStyle;
   };
@@ -51,7 +51,7 @@ export default class RouletteWheel extends Global {
    * 绘制转盘
    * @param {Obj} context 
    */
-  drawRouletteWheel(context) {
+  drawLuckyWheel(context) {
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     // ---------- 绘制外表盘
@@ -232,8 +232,14 @@ export default class RouletteWheel extends Global {
     const easeNum = super.easeOut(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
     const __spinningChange = (this._spinningChange - easeNum) * (Math.PI / 180);
 
+    
     this.startRadian += __spinningChange;
-    this.drawRouletteWheel(context);
+    
+    if (this.startRadian > this._spinningChange) {
+      this.startRadian = this._spinningChange
+    }
+
+    this.drawLuckyWheel(context);
     window.requestAnimationFrame(this.rotateWheel.bind(this, context));
   };
 
@@ -250,14 +256,66 @@ export default class RouletteWheel extends Global {
 
   /**
    * 执行旋转，用于绑定在按钮上
-   * @param {Obj} context 
+   * @param {context 2d} context 
    */
   luckyDraw(context) {
+    this.reset()
     this._isAnimate = true;
-    this._spinningTime = 0;
-    this._spinTotalTime = Math.random() * 1000 + this.duration;
-    this._spinningChange = Math.random() * 100 + this.velocity;
+    this._spinTotalTime = this.duration;
+    this._spinningChange = this.getAwardedEndRadian(6, this.awards)
     this.rotateWheel(context);
+  };
+
+  /**
+   * 计算某个指定奖品的旋转所需弧度数
+   * @author hongwenqing(elenh)
+   * @date 
+   * @param {number} index 获奖奖品索引
+   * @param {Array of Object} awards 奖品列表
+   * @return {number} 弧度数
+   */
+  getAwardedEndRadian(index, awards) {
+    const arrow_deg = 270
+    const award_len = awards.length
+    const per_rad = (360 / award_len)
+    const per_rad_half = per_rad / 2
+
+    const per_rad_arr = awards.reduce((init) => {
+      const prev = init[init.length - 1]
+      let deg = 0
+
+      if (prev) {
+        deg = prev + per_rad
+      } else {
+        deg = per_rad_half
+      }
+
+      if (deg < arrow_deg) {
+        deg = arrow_deg - deg
+      } else if (deg > arrow_deg) {
+        // TODO
+
+        deg = 270 + (90 - 22.5)
+      }
+
+      init.push(deg)
+      
+      return init
+    }, [])
+
+    return per_rad_arr[index] * (Math.PI / 180)
+  };
+
+  /**
+   * 重置转盘状态
+   * @author hongwenqing(elenh)
+   * @date 
+   * @param {}
+   * @return 
+   */
+  reset() {
+    this.startRadian = 0;
+    this._spinningTime = 0;
   };
 
   /**
@@ -267,7 +325,7 @@ export default class RouletteWheel extends Global {
    */
   render(canvas, context) {
     this._canvasStyle = canvas.getAttribute('style');
-    this.drawRouletteWheel(context);
+    this.drawLuckyWheel(context);
 
     ['touchstart', 'mousedown'].forEach((event) => {
       canvas.addEventListener(event, (e) => {

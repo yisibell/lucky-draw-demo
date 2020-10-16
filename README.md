@@ -2,6 +2,14 @@
 
 A lucky draw plugin for web.
 
+# Installation
+
+**NPM**
+
+``` bash
+$ npm i @aidol/lucky-draw -S
+```
+
 # Usage
 
 ## 幸运九宫格
