@@ -10,7 +10,108 @@ A lucky draw plugin for web.
 $ npm i @aidol/lucky-draw -S
 ```
 
+**SCRIPT TAG**
+
+对于非模块化的项目，你可以将 `dist/aidol-lucky-draw.umd.js` 版本下载至本地使用。
+她会向全局暴露一个叫做 `AidolLuckyDraw` 的变量。
+
+``` html
+<body>
+    <script src="/dist/aidol-lucky-draw.umd.js"></script>
+    <!-- 例如：使用幸运大转盘插件 -->
+    <script>
+        const { LuckyWheel } = AidolLuckyDraw;
+        new LuckyWheel('#canvas', {
+            //...
+        }).render()
+    </script>
+</body>
+```
+
 # Usage
+
+## 幸运大转盘
+
+**最简单的使用：**
+
+``` html
+<body>
+
+    <canvas id="canvas" width="500" height="500"> Canvas not supported </canvas>
+
+    <script src="../dist/aidol-lucky-draw.umd.js"></script>
+
+    <script>
+      const { LuckyWheel } = AidolLuckyDraw;
+
+      new LuckyWheel('#canvas', {
+        awards: [
+          { type: "text", content: "iphone8" },
+          { type: "text", content: "大保健" },
+          { type: "text", content: "10元话费" },
+          { type: "losing", content: "未中奖" },
+          {
+            type: "image",
+            content:
+              "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
+          },
+          { type: "losing", content: "未中奖" },
+          { type: "text", content: "10个大嘴巴子" },
+          { type: "text", content: "100元话费" }
+        ],
+        fetchAward: function (awards) {
+          console.log(awards) // 奖项列表
+
+          // 你可以在这定义获奖规则
+          // 通常，获奖的规则，及概率控制应该交给后端控制
+          // 所以，你可以在这调起一个获取中奖项的接口
+          // 插件本身只需要管交互效果
+
+          return 3 // 需要返回中奖下标索引值
+        },
+        finish: function (index) {
+          switch (this.awards[index].type) {
+            case "text":
+              alert("🎉恭喜您中得：" + this.awards[index].content);
+              break;
+            case "image":
+              alert("🎉恭喜您中得：战争磨坊水冷机箱");
+              break;
+            case "losing":
+              alert("💔很遗憾，您没有中奖~");
+              break;
+          }
+        },
+      }).render();
+    </script>
+    
+</body>
+```
+
+<br />
+
+**可配置参数：**
+
+| 属性 | 是否必选 | 类型 | 备注 | 默认值 |
+| :-- | :--: | :-- | :-- | :--: |
+| outsideRadius | 否 | **number** | 大转盘的半径，这个值乘以二不能大于 `canvas` 画布的宽或者高哟！ | `canvas` 宽度值 - `50` |
+| awards | 是 | **Object** | 奖品信息，每组对象代表一个奖项，对象中有两个属性，type 和 content；<br>type 有三个可能的值：<br><br>`text：`将 content 中的值输出为普通文本；<br> `losing：`将 content 中的值输出普通文本，状态为未中奖；<br>`image：`将 content 中的图片地址渲染为图片。| ø |
+| evenColor | 否 | **string** | 大转盘第偶数个奖品盘颜色 | `#FF6766` |
+| oddColor | 否 | **string** | 大转盘第奇数个奖品盘颜色 | `#FD5757`|
+| loseColor | 否 | **string** | 大转盘未中奖表盘颜色 | `#F79494` |
+| textColor | 否 | **string** | 大转盘奖品文字颜色 | `White` |
+| arrowColorFrom | 否 | *String* | 指针渐变色的第一个颜色 | `#FFFC95` |
+| arrowColorTo | 否 | **string** | 指针渐变色的第二个颜色 | `#FF9D37` |
+| buttonFont | 否 | **string** | 抽奖按钮的文字 | 开始抽奖 |
+| buttonFontColor | 否 | **string** | 抽奖按钮文字的颜色 | `#88411F` |
+| buttonColorFrom | 否 | **string** | 抽奖按钮渐变色的第一个颜色 | `#FDC964` |
+| buttonColorTo | 否 | **string** | 抽奖按钮渐变色的第二个颜色 | `#FFCB65` |
+| startRadian | 否 | **number** | 大转盘绘制的起始角度 | 0 |
+| duration | 否 | **number** | 大转盘旋转的时间 | `4000` |
+| finish | 否 | **Function** | 获取奖品信息后的回调，返回一个中奖下标 | ø |
+| fetchAward | 是 | **Function** | 抓取获奖奖品索引函数，该函数被传入奖品列表参数，需返回一个中奖项下标，插件内部会根据中奖下标执行动画 | ø |
+
+<br />
 
 ## 幸运九宫格
 
@@ -103,83 +204,6 @@ button.addEventListener('click', function (e) {
 ```
 
 <br>
-
-## 幸运大转盘
-
-**最简单的使用：**
-
-``` html
-<body>
-    <canvas id="canvas" width="500" height="500">
-        Canvas not supported
-    </canvas>
-
-    <script src="/dist/aidol-lucky-draw.umd.js"></script>
-    <script>
-        const canvas = document.getElementById('canvas'),
-            context = canvas.getContext('2d');
-
-        const { LuckyWheel } = AidolLuckyDraw;
-
-        new LuckyWheel({
-            centerX:       canvas.width / 2,
-            centerY:       canvas.height / 2,
-            outsideRadius: 200,
-
-            awards: [
-                {type: 'text', content: 'iphone8'},
-                {type: 'text', content: '大保健'},
-                {type: 'text', content: '10元话费'},
-                {type: 'image', content: 'https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg'},
-                {type: 'losing', content: '未中奖'}
-            ],
-
-            finish: function (index) {
-                switch(this.awards[index].type) {
-                    case 'text':
-                        alert('🎉恭喜您中得：' + this.awards[index].content);
-                        break;
-                    case 'image':
-                        alert('🎉恭喜您中得：战争磨坊水冷机箱');
-                        break;
-                    case 'losing':
-                        alert('💔很遗憾，您没有中奖~');
-                        break;
-                }
-            }
-            
-        }).render(canvas, context);
-
-    </script>
-</body>
-```
-
-<br />
-
-**可配置参数：**
-
-| 属性 | 是否必选 | 类型 | 备注 | 默认值 |
-| :-- | :--: | :-- | :-- | :--: |
-| centerX | 是 | *Number* | 大转盘圆心x轴坐标，一般为画布宽度的一半 | ø |
-| centerY | 是 | *Number* | 大转盘圆心y轴坐标，一般为画布高度的一半 | ø |
-| outsideRadius | 是 | *Number* | 大转盘的半径，这个值乘以二不能大于 canvas 画布的宽或者高哟！ | ø |
-| awards | 是 | *Object* | 奖品信息，每组对象代表一个奖项，对象中有两个属性，type 和 content；<br>type 有三个可能的值：<br><br>`text：`将 content 中的值输出为普通文本；<br> `losing：`将 content 中的值输出普通文本，状态为未中奖；<br>`image：`将 content 中的图片地址渲染为图片。| ø |
-| evenColor | 否 | *String* | 大转盘第偶数个奖品盘颜色 | #FF6766 |
-| oddColor | 否 | *String* | 大转盘第奇数个奖品盘颜色 | #FD5757 |
-| loseColor | 否 | *String* | 大转盘未中奖表盘颜色 | #F79494 |
-| textColor | 否 | *String* | 大转盘奖品文字颜色 | White |
-| arrowColorFrom | 否 | *String* | 指针渐变色的第一个颜色 | #FFFC95 |
-| arrowColorTo | 否 | *String* | 指针渐变色的第二个颜色 | #FF9D37 |
-| buttonFont | 否 | *String* | 抽奖按钮的文字 | 开始抽奖 |
-| buttonFontColor | 否 | *String* | 抽奖按钮文字的颜色 | #88411F |
-| buttonColorFrom | 否 | *String* | 抽奖按钮渐变色的第一个颜色 | #FDC964 |
-| buttonColorTo | 否 | *String* | 抽奖按钮渐变色的第二个颜色 | #FFCB65 |
-| startRadian | 否 | *Number* | 大转盘绘制的起始角度 | 0 |
-| duration | 否 | *Number* | 大转盘旋转的时间 | 4000 |
-| velocity | 否 | *Number* | 大转盘旋转的速率峰值 | 10 |
-| finish | 否 | *Callback* | 获取奖品信息后的回调，返回一个下标，根据该下标查找抽到什么奖品 | ø |
-
-<br />
 
 ## 幸运刮刮卡
 

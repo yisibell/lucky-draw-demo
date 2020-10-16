@@ -11,3 +11,6 @@ rollup.config.js
 
 # others
 example/
+
+# editor config
+.DS_Store

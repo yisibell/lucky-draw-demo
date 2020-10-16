@@ -8,5 +8,7 @@ lerna-debug.log*
 
 # others
 node_modules/
-
 package-lock.json
+
+# editor config
+.DS_Store

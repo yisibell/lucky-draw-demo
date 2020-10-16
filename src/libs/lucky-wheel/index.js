@@ -1,12 +1,15 @@
 import Global from 'src/mixin'
 
 export default class RouletteWheel extends Global {
-  constructor(options) {
+  constructor(el, options) {
     super();
 
-    this.centerX = options.centerX;
-    this.centerY = options.centerY;
-    this.outsideRadius = options.outsideRadius;
+    this.canvas = document.querySelector(el); // canvas 对象
+    this.ctx = this.canvas.getContext('2d');  // 2d 上下文
+
+    this.centerX = this.canvas.width / 2;
+    this.centerY = this.canvas.height / 2;
+    this.outsideRadius = options.outsideRadius || this.centerX - 50; // 转盘半径
 
     this.evenColor = options.evenColor     || '#FF6766';
     this.oddColor = options.oddColor       || '#FD5757';
@@ -20,13 +23,11 @@ export default class RouletteWheel extends Global {
     this.buttonColorFrom = options.buttonColorFrom || '#FDC964';
     this.buttonColorTo = options.buttonColorTo     || '#FFCB65';
 
-    this.awards = options.awards;
-
+    this.awards = options.awards; // 奖品列表
     this.startRadian = options.startRadian || 0; // 开始弧度
     this.duration = options.duration || 4000;    // 旋转持续时间
-    this.velocity = options.velocity || 10; 
-
-    this.finish = options.finish;
+    this.finish = options.finish; // 抽奖动画结束后回调函数
+    this.fetchAward = options.fetchAward; // 自定义获取奖品
 
     this.INSIDE_RADIUS = 0;
     this.TEXT_RADIAS = this.outsideRadius * .8;
@@ -49,9 +50,10 @@ export default class RouletteWheel extends Global {
 
   /**
    * 绘制转盘
-   * @param {Obj} context 
    */
-  drawLuckyWheel(context) {
+  drawLuckyWheel() {
+    const context = this.ctx;
+
     context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
     // ---------- 绘制外表盘
@@ -218,9 +220,8 @@ export default class RouletteWheel extends Global {
 
   /**
    * 开始旋转
-   * @param {Obj} context 
    */
-  rotateWheel(context) {
+  rotateWheel() {
     this._spinningTime += 30;
 
     if (this._spinningTime >= this._spinTotalTime) {
@@ -232,15 +233,14 @@ export default class RouletteWheel extends Global {
     const easeNum = super.easeOut(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
     const __spinningChange = (this._spinningChange - easeNum) * (Math.PI / 180);
 
-    
     this.startRadian += __spinningChange;
     
     if (this.startRadian > this._spinningChange) {
       this.startRadian = this._spinningChange
     }
 
-    this.drawLuckyWheel(context);
-    window.requestAnimationFrame(this.rotateWheel.bind(this, context));
+    this.drawLuckyWheel();
+    window.requestAnimationFrame(this.rotateWheel.bind(this));
   };
 
   /**
@@ -258,12 +258,19 @@ export default class RouletteWheel extends Global {
    * 执行旋转，用于绑定在按钮上
    * @param {context 2d} context 
    */
-  luckyDraw(context) {
+  luckyDraw() {
     this.reset()
     this._isAnimate = true;
     this._spinTotalTime = this.duration;
-    this._spinningChange = this.getAwardedEndRadian(6, this.awards)
-    this.rotateWheel(context);
+
+    if (this.fetchAward) {
+      const award_index = this.fetchAward(this.awards)
+      this._spinningChange = this.getAwardedEndRadian(award_index, this.awards)
+      this.rotateWheel();
+    } else {
+      throw new Error('fetchAward function is required.')
+    }
+   
   };
 
   /**
@@ -280,22 +287,14 @@ export default class RouletteWheel extends Global {
     const per_rad = (360 / award_len)
     const per_rad_half = per_rad / 2
 
-    const per_rad_arr = awards.reduce((init) => {
+    const per_deg_arr = awards.reduce((init) => {
       const prev = init[init.length - 1]
       let deg = 0
 
       if (prev) {
         deg = prev + per_rad
       } else {
-        deg = per_rad_half
-      }
-
-      if (deg < arrow_deg) {
-        deg = arrow_deg - deg
-      } else if (deg > arrow_deg) {
-        // TODO
-
-        deg = 270 + (90 - 22.5)
+        deg = this.startRadian + per_rad_half
       }
 
       init.push(deg)
@@ -303,7 +302,17 @@ export default class RouletteWheel extends Global {
       return init
     }, [])
 
-    return per_rad_arr[index] * (Math.PI / 180)
+    const per_end_deg_arr = per_deg_arr.map(deg => {
+      if (deg < arrow_deg) {
+        return arrow_deg - deg
+      } else if (deg > arrow_deg) {
+        return arrow_deg + (90 - (deg - arrow_deg))
+      }
+
+      return deg
+    })
+
+    return (per_end_deg_arr[index] + 360 * 6) * (Math.PI / 180)
   };
 
   /**
@@ -320,17 +329,16 @@ export default class RouletteWheel extends Global {
 
   /**
    * 初始化转盘
-   * @param {obj} canvas
-   * @param {Obj} context 
    */
-  render(canvas, context) {
-    this._canvasStyle = canvas.getAttribute('style');
-    this.drawLuckyWheel(context);
+  render() {
+    const context = this.ctx;
+    this._canvasStyle = this.canvas.getAttribute('style');
+    this.drawLuckyWheel();
 
     ['touchstart', 'mousedown'].forEach((event) => {
-      canvas.addEventListener(event, (e) => {
+      this.canvas.addEventListener(event, (e) => {
         if (!this._isAnimate) {
-          let loc = super.windowToCanvas(canvas, e);
+          let loc = super.windowToCanvas(this.canvas, e);
           context.beginPath();
           context.arc(this.centerX, this.centerY, this.BUTTON_RADIUS, 0, Math.PI * 2, false);
           if (context.isPointInPath(loc.x, loc.y)) {
@@ -340,14 +348,14 @@ export default class RouletteWheel extends Global {
       })
     });
 
-    canvas.addEventListener('mousemove', (e) => {
-      let loc = super.windowToCanvas(canvas, e);
+    this.canvas.addEventListener('mousemove', (e) => {
+      let loc = super.windowToCanvas(this.canvas, e);
       context.beginPath();
       context.arc(this.centerX, this.centerY, this.BUTTON_RADIUS, 0, Math.PI * 2, false);
       if (context.isPointInPath(loc.x, loc.y)) {
-        canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
+        this.canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
       } else {
-        canvas.setAttribute('style', this._canvasStyle);
+        this.canvas.setAttribute('style', this._canvasStyle);
       }
     });
   }
