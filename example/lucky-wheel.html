@@ -13,7 +13,7 @@
     <script>
       const { LuckyWheel } = AidolLuckyDraw;
 
-      new LuckyWheel('#canvas', {
+      new LuckyWheel("#canvas", {
         awards: [
           { type: "text", content: "iphone8" },
           { type: "text", content: "大保健" },
@@ -26,22 +26,26 @@
           },
           { type: "losing", content: "未中奖" },
           { type: "text", content: "10个大嘴巴子" },
-          { type: "text", content: "100元话费" }
+          { type: "text", content: "100元话费" },
         ],
         fetchAward: function (awards) {
-          console.log(awards) // 奖项列表
+          console.log(awards); // 奖项列表
 
           // 你可以在这定义获奖规则
-          // 通常，获奖的规则，及概率控制应该交给后端控制
+          // 通常，获奖的规则，及概率应该交给后端控制
           // 所以，你可以在这调起一个获取中奖项的接口
           // 插件本身只需要管交互效果
-
-          return 3 // 需要返回中奖下标索引值
+          let index = Number.parseInt(Math.random() * 10);
+          if (index > awards.length - 1) {
+            index = awards.length - 1
+          }
+          console.log(index);
+          return index; // 需要返回中奖下标索引值
         },
-        finish: function (index) {
-          switch (this.awards[index].type) {
+        finish: function (index, awards) {
+          switch (awards[index].type) {
             case "text":
-              alert("🎉恭喜您中得：" + this.awards[index].content);
+              alert("🎉恭喜您中得：" + awards[index].content);
               break;
             case "image":
               alert("🎉恭喜您中得：战争磨坊水冷机箱");

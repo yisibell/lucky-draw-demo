@@ -25,9 +25,10 @@ export default class RouletteWheel extends Global {
 
     this.awards = options.awards; // 奖品列表
     this.startRadian = options.startRadian || 0; // 开始弧度
-    this.duration = options.duration || 4000;    // 旋转持续时间
+    this.duration = options.duration || 5000;    // 旋转持续时间
     this.finish = options.finish; // 抽奖动画结束后回调函数
     this.fetchAward = options.fetchAward; // 自定义获取奖品
+    this.animation; // 自定义缓动函数
 
     this.INSIDE_RADIUS = 0;
     this.TEXT_RADIAS = this.outsideRadius * .8;
@@ -44,8 +45,8 @@ export default class RouletteWheel extends Global {
     this._spinningTime = 0;    // 当前动画位置
     this._spinTotalTime = 0;   // 动画所需时间
     this._spinningChange = 0;  // 动画峰值
-
     this._canvasStyle;
+    this._awardedIndex = 0; // 当前获奖索引
   };
 
   /**
@@ -226,21 +227,26 @@ export default class RouletteWheel extends Global {
 
     if (this._spinningTime >= this._spinTotalTime) {
       this._isAnimate = false;
-      if (this.finish) this.finish(this.getValue());
+      if (this.finish) this.finish(this._awardedIndex, this.awards);
       return;
     }
     
-    const easeNum = super.easeOut(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
-    const __spinningChange = (this._spinningChange - easeNum) * (Math.PI / 180);
-
-    this.startRadian += __spinningChange;
+    const easeStep = this.easingFunc(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
     
+    this.startRadian += ((this._spinningChange - easeStep) * (Math.PI / 180));
     if (this.startRadian > this._spinningChange) {
       this.startRadian = this._spinningChange
     }
 
     this.drawLuckyWheel();
     window.requestAnimationFrame(this.rotateWheel.bind(this));
+  };
+
+  easingFunc(...args) {
+    if (this.animation) {
+      return this.animation(...args)
+    }
+    return super.easeOut(...args)
   };
 
   /**
@@ -256,21 +262,23 @@ export default class RouletteWheel extends Global {
 
   /**
    * 执行旋转，用于绑定在按钮上
-   * @param {context 2d} context 
    */
   luckyDraw() {
-    this.reset()
-    this._isAnimate = true;
-    this._spinTotalTime = this.duration;
-
     if (this.fetchAward) {
-      const award_index = this.fetchAward(this.awards)
-      this._spinningChange = this.getAwardedEndRadian(award_index, this.awards)
+      this.reset()
+      this._isAnimate = true;
+      this._spinTotalTime = this.duration;
+      this._awardedIndex = this.fetchAward(this.awards)
+
+      if (this._awardedIndex < 0 || this._awardedIndex > this.awards.length - 1) {
+        throw new Error('Beyond the scope of awards.');
+      }
+
+      this._spinningChange = this.getAwardedEndRadian(this._awardedIndex, this.awards)
       this.rotateWheel();
     } else {
       throw new Error('fetchAward function is required.')
     }
-   
   };
 
   /**
@@ -317,10 +325,6 @@ export default class RouletteWheel extends Global {
 
   /**
    * 重置转盘状态
-   * @author hongwenqing(elenh)
-   * @date 
-   * @param {}
-   * @return 
    */
   reset() {
     this.startRadian = 0;

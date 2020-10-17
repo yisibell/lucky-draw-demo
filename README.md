@@ -37,54 +37,58 @@ $ npm i @aidol/lucky-draw -S
 ``` html
 <body>
 
-    <canvas id="canvas" width="500" height="500"> Canvas not supported </canvas>
+  <canvas id="canvas" width="500" height="500"> Canvas not supported </canvas>
 
-    <script src="../dist/aidol-lucky-draw.umd.js"></script>
+  <script src="../dist/aidol-lucky-draw.umd.js"></script>
 
-    <script>
-      const { LuckyWheel } = AidolLuckyDraw;
+  <script>
+    const { LuckyWheel } = AidolLuckyDraw;
 
-      new LuckyWheel('#canvas', {
-        awards: [
-          { type: "text", content: "iphone8" },
-          { type: "text", content: "大保健" },
-          { type: "text", content: "10元话费" },
-          { type: "losing", content: "未中奖" },
-          {
+    new LuckyWheel("#canvas", {
+      awards: [
+        { type: "text", content: "iphone8" },
+        { type: "text", content: "大保健" },
+        { type: "text", content: "10元话费" },
+        { type: "losing", content: "未中奖" },
+        {
             type: "image",
             content:
-              "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
-          },
-          { type: "losing", content: "未中奖" },
-          { type: "text", content: "10个大嘴巴子" },
-          { type: "text", content: "100元话费" }
+            "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
+        },
+        { type: "losing", content: "未中奖" },
+        { type: "text", content: "10个大嘴巴子" },
+        { type: "text", content: "100元话费" },
         ],
         fetchAward: function (awards) {
-          console.log(awards) // 奖项列表
+          console.log(awards); // 奖项列表
 
           // 你可以在这定义获奖规则
-          // 通常，获奖的规则，及概率控制应该交给后端控制
+          // 通常，获奖的规则，及概率应该交给后端控制
           // 所以，你可以在这调起一个获取中奖项的接口
           // 插件本身只需要管交互效果
 
-          return 3 // 需要返回中奖下标索引值
-        },
-        finish: function (index) {
-          switch (this.awards[index].type) {
-            case "text":
-              alert("🎉恭喜您中得：" + this.awards[index].content);
-              break;
-            case "image":
-              alert("🎉恭喜您中得：战争磨坊水冷机箱");
-              break;
-            case "losing":
-              alert("💔很遗憾，您没有中奖~");
-              break;
+          let index = Number.parseInt(Math.random() * 10);
+          if (index > awards.length - 1) {
+            index = awards.length - 1
           }
+          console.log(index);
+          return index; // 需要返回中奖下标索引值
         },
-      }).render();
-    </script>
-    
+        finish: function (index, awards) {
+        switch (awards[index].type) {
+            case "text":
+            alert("🎉恭喜您中得：" + awards[index].content);
+            break;
+            case "image":
+            alert("🎉恭喜您中得：战争磨坊水冷机箱");
+            break;
+            case "losing":
+            alert("💔很遗憾，您没有中奖~");
+            break;
+        }
+      },
+    }).render();
+  </script>
 </body>
 ```
 
@@ -108,8 +112,14 @@ $ npm i @aidol/lucky-draw -S
 | buttonColorTo | 否 | **string** | 抽奖按钮渐变色的第二个颜色 | `#FFCB65` |
 | startRadian | 否 | **number** | 大转盘绘制的起始角度 | 0 |
 | duration | 否 | **number** | 大转盘旋转的时间 | `4000` |
-| finish | 否 | **Function** | 获取奖品信息后的回调，返回一个中奖下标 | ø |
+| finish | 否 | **Function** | 获取奖品信息后的回调，返回一个中奖下标和当前奖项列表 | ø |
 | fetchAward | 是 | **Function** | 抓取获奖奖品索引函数，该函数被传入奖品列表参数，需返回一个中奖项下标，插件内部会根据中奖下标执行动画 | ø |
+| animation | 否 | **Function** | 自定义大转盘旋转动画缓动函数 | 源码内部使用 `easeOut` 的模式 |
+
+
+**缓动函数可以参考下面项目：**
+
+<a href="https://github.com/zhangxinxu/Tween" target="_blank>Tween.js</a>
 
 <br />
 
