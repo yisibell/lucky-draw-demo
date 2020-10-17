@@ -111,7 +111,7 @@ $ npm i @aidol/lucky-draw -S
 | buttonColorFrom | 否 | **string** | 抽奖按钮渐变色的第一个颜色 | `#FDC964` |
 | buttonColorTo | 否 | **string** | 抽奖按钮渐变色的第二个颜色 | `#FFCB65` |
 | startRadian | 否 | **number** | 大转盘绘制的起始角度 | 0 |
-| duration | 否 | **number** | 大转盘旋转的时间 | `4000` |
+| duration | 否 | **number** | 大转盘旋转的时间，单位，毫秒数 | `5000` |
 | finish | 否 | **Function** | 获取奖品信息后的回调，返回一个中奖下标和当前奖项列表 | ø |
 | fetchAward | 是 | **Function** | 抓取获奖奖品索引函数，该函数被传入奖品列表参数，需返回一个中奖项下标，插件内部会根据中奖下标执行动画 | ø |
 | animation | 否 | **Function** | 自定义大转盘旋转动画缓动函数 | 源码内部使用 `easeOut` 的模式 |
@@ -119,7 +119,7 @@ $ npm i @aidol/lucky-draw -S
 
 **缓动函数可以参考下面项目：**
 
-<a href="https://github.com/zhangxinxu/Tween" target="_blank>Tween.js</a>
+<a href="https://github.com/zhangxinxu/Tween" target="_blank"> Tween.js </a>
 
 <br />
 
