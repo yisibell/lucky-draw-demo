@@ -18,7 +18,7 @@ export default class RouletteWheel extends Global {
 
     this.arrowColorFrom = options.arrowColorFrom   || '#FFFC95';
     this.arrowColorTo = options.arrowColorTo       || '#FF9D37';
-    this.buttonFont = options.buttonFont           || '开始抽奖';
+    this.buttonFont = options.buttonFont           || 'START';
     this.buttonFontColor = options.buttonFontColor || '#88411F';
     this.buttonColorFrom = options.buttonColorFrom || '#FDC964';
     this.buttonColorTo = options.buttonColorTo     || '#FFCB65';
@@ -209,11 +209,12 @@ export default class RouletteWheel extends Global {
     context.fillStyle = this.buttonFontColor;
     context.font = `bold ${this.BUTTON_RADIUS / 2}px helvetica`;
     super.drawText(
-        context, 
-        this.buttonFont, 
-        this.centerX - this.BUTTON_RADIUS / 2, this.centerY - this.BUTTON_RADIUS / 2 - 4, 
-        this.BUTTON_RADIUS * .8,
-        this.BUTTON_RADIUS / 2 + 4
+      context,
+      this.buttonFont, 
+      this.centerX - this.BUTTON_RADIUS / 2 - 16,
+      this.centerY - this.BUTTON_RADIUS / 2 + 4,
+      this.BUTTON_RADIUS + 20,
+      this.BUTTON_RADIUS / 2 + 4
     );
     context.restore();
     // ----------
@@ -223,9 +224,9 @@ export default class RouletteWheel extends Global {
    * 开始旋转
    */
   rotateWheel() {
-    this._spinningTime += 30;
+    this._spinningTime += 10;
 
-    if (this._spinningTime >= this._spinTotalTime) {
+    if (this.startRadian >= this._spinningChange) {
       this._isAnimate = false;
       if (this.finish) this.finish(this._awardedIndex, this.awards);
       return;
@@ -234,6 +235,7 @@ export default class RouletteWheel extends Global {
     const easeStep = this.easingFunc(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
     
     this.startRadian += ((this._spinningChange - easeStep) * (Math.PI / 180));
+   
     if (this.startRadian > this._spinningChange) {
       this.startRadian = this._spinningChange
     }

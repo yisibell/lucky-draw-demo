@@ -51,26 +51,24 @@ export default class Global {
    * @param {Num} lineHeight 行高
    */
   drawText(context, t, x, y, w, lineHeight = 20){
-      let chr = t.split(''),
-          temp = '',           
-          row = [];
+    let chr = t.split(''),
+      temp = '',           
+      row = [];
 
-      for (let a = 0; a < chr.length; a++){
-          if ( context.measureText(temp).width < w ) {
-              ;
-          }
-          else{
-              row.push(temp);
-              temp = '';
-          }
-          temp += chr[a];
-      };
+    for (let a = 0; a < chr.length; a++){
+      if ( context.measureText(temp).width >= w ) {
+        row.push(temp);
+        temp = '';
+      }
+      
+      temp += chr[a];
+    };
 
-      row.push(temp);
+    row.push(temp);
 
-      for(let b = 0; b < row.length; b++){
-          context.fillText(row[b], x, y + (b + 1) * lineHeight);
-      };
+    for(let b = 0; b < row.length; b++){
+      context.fillText(row[b], x, y + (b + 1) * lineHeight);
+    };
   };
 
   /**

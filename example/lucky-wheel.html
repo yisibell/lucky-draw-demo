@@ -14,17 +14,18 @@
       const { LuckyWheel } = AidolLuckyDraw;
 
       new LuckyWheel("#canvas", {
+        duration: 7000,
         awards: [
           { type: "text", content: "iphone8" },
           { type: "text", content: "大保健" },
           { type: "text", content: "10元话费" },
-          { type: "losing", content: "未中奖" },
+          { type: "text", content: "10元优惠券" },
           {
             type: "image",
             content:
               "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
           },
-          { type: "losing", content: "未中奖" },
+          { type: "text", content: "50元优惠券" },
           { type: "text", content: "10个大嘴巴子" },
           { type: "text", content: "100元话费" },
         ],
@@ -43,17 +44,7 @@
           return index; // 需要返回中奖下标索引值
         },
         finish: function (index, awards) {
-          switch (awards[index].type) {
-            case "text":
-              alert("🎉恭喜您中得：" + awards[index].content);
-              break;
-            case "image":
-              alert("🎉恭喜您中得：战争磨坊水冷机箱");
-              break;
-            case "losing":
-              alert("💔很遗憾，您没有中奖~");
-              break;
-          }
+          console.log(index, awards);
         },
       }).render();
     </script>
