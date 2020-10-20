@@ -28,25 +28,33 @@ export default class RouletteWheel extends Global {
     this.duration = options.duration || 5000;    // 旋转持续时间
     this.finish = options.finish; // 抽奖动画结束后回调函数
     this.fetchAward = options.fetchAward; // 自定义获取奖品
-    this.animation; // 自定义缓动函数
+    this.animation = options.animation; // 自定义缓动函数
+
+    // 抽奖开始前钩子函数
+    this.beforeStart = options.beforeStart || function(done) {
+      done()
+    };
 
     this.INSIDE_RADIUS = 0;
     this.TEXT_RADIAS = this.outsideRadius * .8;
     this.FONT_STYLE = `bold ${this.outsideRadius * .07}px Helvetica, Arial`;
 
     this.ARROW_RADIUS = this.outsideRadius / 3;     // 圆盘指针的半径
-    this.BUTTON_RADIUS = this.ARROW_RADIUS * .8;     // 圆盘内部按钮的半径
+    this.BUTTON_RADIUS = this.ARROW_RADIUS * .8;    // 圆盘内部按钮的半径
 
     this.AWARDS_COUNT = this.awards.length;
     this.AWARD_RADIAN = (Math.PI * 2) / this.AWARDS_COUNT;
 
     // 私有变量集
     this._isAnimate = false;   // 是否动画中
-    this._spinningTime = 0;    // 当前动画位置
+    this._spinningTime = 0;    // 当前动画时间
     this._spinTotalTime = 0;   // 动画所需时间
     this._spinningChange = 0;  // 动画峰值
-    this._canvasStyle;
-    this._awardedIndex = 0; // 当前获奖索引
+    this._canvasStyle = '';    // canvas style
+    this._awardedIndex = 0;    // 当前获奖索引
+
+    // 自动初始化
+    this.render()
   };
 
   /**
@@ -224,24 +232,18 @@ export default class RouletteWheel extends Global {
    * 开始旋转
    */
   rotateWheel() {
-    this._spinningTime += 10;
-
-    if (this.startRadian >= this._spinningChange) {
-      this._isAnimate = false;
-      if (this.finish) this.finish(this._awardedIndex, this.awards);
-      return;
-    }
-    
     const easeStep = this.easingFunc(this._spinningTime, 0, this._spinningChange, this._spinTotalTime);
     
-    this.startRadian += ((this._spinningChange - easeStep) * (Math.PI / 180));
-   
-    if (this.startRadian > this._spinningChange) {
-      this.startRadian = this._spinningChange
-    }
-
+    this.startRadian = easeStep;
     this.drawLuckyWheel();
-    window.requestAnimationFrame(this.rotateWheel.bind(this));
+    this._spinningTime += 10;
+
+    if (this._spinningTime <= this._spinTotalTime) {
+      window.requestAnimationFrame(this.rotateWheel.bind(this));
+    } else {
+      this._isAnimate = false;
+      if (this.finish) this.finish(this._awardedIndex, this.awards);
+    }
   };
 
   easingFunc(...args) {
@@ -266,11 +268,18 @@ export default class RouletteWheel extends Global {
    * 执行旋转，用于绑定在按钮上
    */
   luckyDraw() {
-    if (this.fetchAward) {
+    this._isAnimate = true;
+    this.beforeStart((awardedIndex) => {
       this.reset()
-      this._isAnimate = true;
       this._spinTotalTime = this.duration;
-      this._awardedIndex = this.fetchAward(this.awards)
+     
+      if (awardedIndex >= 0) {
+        this._awardedIndex = awardedIndex
+      } else if(this.fetchAward) {
+        this._awardedIndex = this.fetchAward(this.awards)
+      } else {
+        throw new Error('if you do not use the beforeStart hock, then fetchAward function is required.')
+      }
 
       if (this._awardedIndex < 0 || this._awardedIndex > this.awards.length - 1) {
         throw new Error('Beyond the scope of awards.');
@@ -278,9 +287,7 @@ export default class RouletteWheel extends Global {
 
       this._spinningChange = this.getAwardedEndRadian(this._awardedIndex, this.awards)
       this.rotateWheel();
-    } else {
-      throw new Error('fetchAward function is required.')
-    }
+    })
   };
 
   /**
@@ -304,13 +311,13 @@ export default class RouletteWheel extends Global {
       if (prev) {
         deg = prev + per_rad
       } else {
-        deg = this.startRadian + per_rad_half
+        deg = per_rad_half
       }
 
       init.push(deg)
       
       return init
-    }, [])
+    }, this.startRadian > 0 ? [this.startRadian] : [])
 
     const per_end_deg_arr = per_deg_arr.map(deg => {
       if (deg < arrow_deg) {
@@ -329,7 +336,6 @@ export default class RouletteWheel extends Global {
    * 重置转盘状态
    */
   reset() {
-    this.startRadian = 0;
     this._spinningTime = 0;
   };
 
@@ -338,7 +344,7 @@ export default class RouletteWheel extends Global {
    */
   render() {
     const context = this.ctx;
-    this._canvasStyle = this.canvas.getAttribute('style');
+    this._canvasStyle = this.canvas.getAttribute('style') || '';
     this.drawLuckyWheel();
 
     ['touchstart', 'mousedown'].forEach((event) => {

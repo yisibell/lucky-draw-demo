@@ -17,14 +17,14 @@ $ npm i @aidol/lucky-draw -S
 
 ``` html
 <body>
-    <script src="/dist/aidol-lucky-draw.umd.js"></script>
-    <!-- 例如：使用幸运大转盘插件 -->
-    <script>
-        const { LuckyWheel } = AidolLuckyDraw;
-        new LuckyWheel('#canvas', {
-            //...
-        }).render()
-    </script>
+  <script src="/dist/aidol-lucky-draw.umd.js"></script>
+  <!-- 例如：使用幸运大转盘插件 -->
+  <script>
+    const { LuckyWheel } = AidolLuckyDraw;
+    new LuckyWheel('#canvas', {
+      //...
+    })
+  </script>
 </body>
 ```
 
@@ -42,29 +42,28 @@ $ npm i @aidol/lucky-draw -S
   <script src="../dist/aidol-lucky-draw.umd.js"></script>
 
   <script>
-    const { LuckyWheel } = AidolLuckyDraw;
+      const { LuckyWheel } = AidolLuckyDraw;
 
-    new LuckyWheel("#canvas", {
-      awards: [
-        { type: "text", content: "iphone8" },
-        { type: "text", content: "大保健" },
-        { type: "text", content: "10元话费" },
-        { type: "losing", content: "未中奖" },
-        {
+      new LuckyWheel("#canvas", {
+        duration: 5000,
+        awards: [
+          { type: "text", content: "iphone8" },
+          { type: "text", content: "大保健" },
+          { type: "text", content: "10元话费" },
+          { type: "text", content: "10元优惠券" },
+          {
             type: "image",
             content:
-            "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
-        },
-        { type: "losing", content: "未中奖" },
-        { type: "text", content: "10个大嘴巴子" },
-        { type: "text", content: "100元话费" },
+              "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
+          },
+          { type: "text", content: "50元优惠券" },
+          { type: "text", content: "10个大嘴巴子" },
+          { type: "text", content: "100元话费" },
         ],
         fetchAward: function (awards) {
           console.log(awards); // 奖项列表
 
           // 你可以在这定义获奖规则
-          // 通常，获奖的规则，及概率应该交给后端控制
-          // 所以，你可以在这调起一个获取中奖项的接口
           // 插件本身只需要管交互效果
 
           let index = Number.parseInt(Math.random() * 10);
@@ -74,20 +73,23 @@ $ npm i @aidol/lucky-draw -S
           console.log(index);
           return index; // 需要返回中奖下标索引值
         },
+        beforeStart: function(done) {
+          // 如果，你只是想在转盘开始旋转前，做些其它事情，而不是拉取中奖项索引
+          // 你可以在最后执行 done(-1)，这时候，你就必须定义 fetchAward 函数
+          done(-1)
+          return
+          // 或许你想将中奖概率，获奖规则交给后端控制
+          // 那么，你可以在该钩子函数中调起一个异步接口来获取中奖项
+          setTimeout(() => {
+            const awardedIndex = 4
+            // 将中奖项索引转入 done 回调，并执行
+            done(awardedIndex)
+          }, 2000)
+        },
         finish: function (index, awards) {
-        switch (awards[index].type) {
-            case "text":
-            alert("🎉恭喜您中得：" + awards[index].content);
-            break;
-            case "image":
-            alert("🎉恭喜您中得：战争磨坊水冷机箱");
-            break;
-            case "losing":
-            alert("💔很遗憾，您没有中奖~");
-            break;
+          console.log(index, awards);
         }
-      },
-    }).render();
+      })
   </script>
 </body>
 ```
@@ -115,6 +117,7 @@ $ npm i @aidol/lucky-draw -S
 | finish | 否 | **Function** | 获取奖品信息后的回调，返回一个中奖下标和当前奖项列表 | `undefined` |
 | fetchAward | 是 | **Function** | 抓取获奖奖品索引函数，该函数被传入奖品列表参数，需返回一个中奖项下标，插件内部会根据中奖下标执行动画 | `undefined` |
 | animation | 否 | **Function** | 自定义大转盘旋转动画缓动函数 | 源码内部使用 `easeOut` 的模式 |
+| beforeStart | 否 | **Function** | 大转盘动画开始前钩子函数，被转入 `done` 回调函数作为参数，如果使用了该钩子函数， `done` 函数必须被执行，你可以对 `done` 回调传入 **中奖下标** 或 `-1` | `/` |
 
 
 **缓动函数可以参考下面项目：**
@@ -133,41 +136,39 @@ $ npm i @aidol/lucky-draw -S
 
     <script src="/dist/aidol-lucky-draw.umd.js"></script>
     <script>
-        const canvas = document.getElementById('canvas'),
-            context = canvas.getContext('2d');
+      const canvas = document.getElementById('canvas'),
+      context = canvas.getContext('2d');
 
-        const { LuckySudoku } = AidolLuckyDraw;
+      const { LuckySudoku } = AidolLuckyDraw;
 
-        new LuckySudoku({
-            sudokuSize: canvas.width,
+      new LuckySudoku({
+        sudokuSize: canvas.width,
+        awards: [
+          {type: 'text', content: '30元话费'},
+          {type: 'text', content: 'iphone8'},
+          {type: 'losing', content: '未中奖'},
+          {type: 'text', content: 'MackBook Pro'},
+          {type: 'image', content: 'https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg'},
+          {type: 'losing', content: '未中奖'},
+          {type: 'image', content: 'https://img11.360buyimg.com/n7/jfs/t3187/325/423764794/213696/f4eb1dbd/57b68142Nbe104228.jpg'},
+          {type: 'text', content: '火星一日游'}
+        ],
+        finish: function (index) {
+          switch(this.awards[index].type) {
+            case 'text':
+                alert('🎉恭喜您中得：' + this.awards[index].content);
+                break;
+            case 'image':
+                if (index === 4)      alert('🎉恭喜您中得战争磨坊水冷机');
+                else if (index === 6) alert('🎉恭喜您中得魔声耳机');
+                break;
+            case 'losing':
+                alert('💔很遗憾，您没有中奖~');
+                break;
+          }
+        }
+      }).render(canvas, context);
 
-            awards: [
-                {type: 'text', content: '30元话费'},
-                {type: 'text', content: 'iphone8'},
-                {type: 'losing', content: '未中奖'},
-                {type: 'text', content: 'MackBook Pro'},
-                {type: 'image', content: 'https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg'},
-                {type: 'losing', content: '未中奖'},
-                {type: 'image', content: 'https://img11.360buyimg.com/n7/jfs/t3187/325/423764794/213696/f4eb1dbd/57b68142Nbe104228.jpg'},
-                {type: 'text', content: '火星一日游'}
-            ],
-            
-            finish: function (index) {
-                switch(this.awards[index].type) {
-                    case 'text':
-                        alert('🎉恭喜您中得：' + this.awards[index].content);
-                        break;
-                    case 'image':
-                        if (index === 4)      alert('🎉恭喜您中得战争磨坊水冷机');
-                        else if (index === 6) alert('🎉恭喜您中得魔声耳机');
-                        break;
-                    case 'losing':
-                        alert('💔很遗憾，您没有中奖~');
-                        break;
-                }
-            }
-
-        }).render(canvas, context);
     </script>
 </body>
 ```

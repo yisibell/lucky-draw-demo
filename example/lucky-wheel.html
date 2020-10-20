@@ -14,7 +14,7 @@
       const { LuckyWheel } = AidolLuckyDraw;
 
       new LuckyWheel("#canvas", {
-        duration: 7000,
+        duration: 5000,
         awards: [
           { type: "text", content: "iphone8" },
           { type: "text", content: "大保健" },
@@ -33,9 +33,8 @@
           console.log(awards); // 奖项列表
 
           // 你可以在这定义获奖规则
-          // 通常，获奖的规则，及概率应该交给后端控制
-          // 所以，你可以在这调起一个获取中奖项的接口
           // 插件本身只需要管交互效果
+
           let index = Number.parseInt(Math.random() * 10);
           if (index > awards.length - 1) {
             index = awards.length - 1
@@ -43,10 +42,23 @@
           console.log(index);
           return index; // 需要返回中奖下标索引值
         },
+        beforeStart: function(done) {
+          // 如果，你只是想在转盘开始旋转前，做些其它事情，而不是拉取中奖项索引
+          // 你可以在最后执行 done(-1)，这时候，你就必须定义 fetchAward 函数
+          done(-1)
+          return
+          // 或许你想将中奖概率，获奖规则交给后端控制
+          // 那么，你可以在该钩子函数中调起一个异步接口来获取中奖项
+          setTimeout(() => {
+            const awardedIndex = 4
+            // 将中奖项索引转入 done 回调，并执行
+            done(awardedIndex)
+          }, 2000)
+        },
         finish: function (index, awards) {
           console.log(index, awards);
-        },
-      }).render();
+        }
+      })
     </script>
   </body>
 </html>
