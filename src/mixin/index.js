@@ -5,17 +5,17 @@ export default class Global {
    * 判断是否为 PC 端，若是则返回 true，否则返回 flase
    */
   IsPC() {
-      let userAgentInfo = navigator.userAgent,
-          flag = true,
-          Agents = ["Android", "iPhone","SymbianOS", "Windows Phone","iPad", "iPod"];
+    let userAgentInfo = navigator.userAgent,
+      flag = true,
+      Agents = ["Android", "iPhone","SymbianOS", "Windows Phone","iPad", "iPod"];
 
-      for (let v = 0; v < Agents.length; v++) {
-          if (userAgentInfo.indexOf(Agents[v]) > 0) {
-              flag = false;
-              break;
-          }
+    for (let v = 0; v < Agents.length; v++) {
+      if (userAgentInfo.indexOf(Agents[v]) > 0) {
+        flag = false;
+        break;
       }
-      return flag;
+    }
+    return flag;
   };
 
   /**
@@ -26,19 +26,19 @@ export default class Global {
    * @param {Num} d 持续时间
    */
   easeOut(t, b, c, d) {
-      if ((t /= d / 2) < 1) return c / 2 * t * t + b;
-      return -c / 2 * ((--t) * (t - 2) - 1) + b;
+    if ((t /= d / 2) < 1) return c / 2 * t * t + b;
+    return -c / 2 * ((--t) * (t - 2) - 1) + b;
   };
 
   windowToCanvas(canvas, e) {
-      let bbox = canvas.getBoundingClientRect(),
-          x = this.IsPC() ? e.clientX || event.clientX : e.changedTouches[0].clientX,
-          y = this.IsPC() ? e.clientY || event.clientY : e.changedTouches[0].clientY;
-          
-      return {
-          x: x - bbox.left,
-          y: y - bbox.top
-      }
+    let bbox = canvas.getBoundingClientRect(),
+      x = this.IsPC() ? e.clientX || event.clientX : e.changedTouches[0].clientX,
+      y = this.IsPC() ? e.clientY || event.clientY : e.changedTouches[0].clientY;
+
+    return {
+      x: x - bbox.left,
+      y: y - bbox.top
+    }
   };
 
   /**

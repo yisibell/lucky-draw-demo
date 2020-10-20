@@ -267,8 +267,8 @@ export default class RouletteWheel extends Global {
    * 执行旋转，用于绑定在按钮上
    */
   luckyDraw() {
-    this._isAnimate = true;
     this.beforeStart((awardedIndex) => {
+      this._isAnimate = true;
       this._spinningTime = 0;
       this._spinTotalTime = this.duration;
      
@@ -340,36 +340,48 @@ export default class RouletteWheel extends Global {
     this.drawLuckyWheel()
   };
 
+  btnClickListener(e) {
+    const context = this.ctx;
+    if (!this._isAnimate) {
+      let loc = super.windowToCanvas(this.canvas, e);
+    
+      if (context.isPointInPath(loc.x, loc.y)) {
+        this.luckyDraw(context);
+      }
+    }
+  };
+
+  btnMoveListener(e) {
+    const context = this.ctx;
+    let loc = super.windowToCanvas(this.canvas, e);
+     
+    if (context.isPointInPath(loc.x, loc.y)) {
+      this.canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
+    } else {
+      this.canvas.setAttribute('style', this._canvasStyle);
+    }
+  };
+
+  destroy() {
+    ['touchstart', 'mousedown'].forEach(name => {
+      this.canvas.removeEventListener(name, this.btnClickListener)
+    })
+
+    this.canvas.removeEventListener('mousemove', this.btnMoveListener)
+  };
+
   /**
    * 初始化转盘
    */
   render() {
-    const context = this.ctx;
+    this.destroy()
     this._canvasStyle = this.canvas.getAttribute('style') || '';
     this.drawLuckyWheel();
 
     ['touchstart', 'mousedown'].forEach((event) => {
-      this.canvas.addEventListener(event, (e) => {
-        if (!this._isAnimate) {
-          let loc = super.windowToCanvas(this.canvas, e);
-          context.beginPath();
-          context.arc(this.centerX, this.centerY, this.BUTTON_RADIUS, 0, Math.PI * 2, false);
-          if (context.isPointInPath(loc.x, loc.y)) {
-            this.luckyDraw(context);
-          }
-        }
-      })
+      this.canvas.addEventListener(event, this.btnClickListener.bind(this))
     });
 
-    this.canvas.addEventListener('mousemove', (e) => {
-      let loc = super.windowToCanvas(this.canvas, e);
-      context.beginPath();
-      context.arc(this.centerX, this.centerY, this.BUTTON_RADIUS, 0, Math.PI * 2, false);
-      if (context.isPointInPath(loc.x, loc.y)) {
-        this.canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
-      } else {
-        this.canvas.setAttribute('style', this._canvasStyle);
-      }
-    });
+    this.canvas.addEventListener('mousemove', this.btnMoveListener.bind(this));
   }
 }
