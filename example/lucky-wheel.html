@@ -12,8 +12,9 @@
 
     <script>
       const { LuckyWheel } = AidolLuckyDraw;
+      const el = document.querySelector('#canvas')
 
-      new LuckyWheel("#canvas", {
+      new LuckyWheel(el, {
         duration: 5000,
         awards: [
           { type: "text", content: "iphone8" },

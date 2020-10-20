@@ -1,11 +1,12 @@
 import Global from 'src/mixin'
+import { isHtmlElement } from 'src/utils'
 
 export default class RouletteWheel extends Global {
   constructor(el, options) {
     super();
 
-    this.canvas = document.querySelector(el); // canvas 对象
-    this.ctx = this.canvas.getContext('2d');  // 2d 上下文
+    this.canvas = isHtmlElement(el) ? el : document.querySelector(el); // canvas 对象
+    this.ctx = this.canvas && this.canvas.getContext('2d');  // 2d 上下文
 
     this.centerX = this.canvas.width / 2;
     this.centerY = this.canvas.height / 2;
@@ -53,7 +54,9 @@ export default class RouletteWheel extends Global {
     this._awardedIndex = 0;    // 当前获奖索引
     
     // 自动初始化
-    this.render()
+    if (this.canvas && this.ctx) {
+      this.render()
+    }
   };
 
   /**
