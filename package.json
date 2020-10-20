@@ -1,6 +1,6 @@
 {
   "name": "@aidol/lucky-draw",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "A lucky draw plugin for web.",
   "main": "dist/aidol-lucky-draw.umd.js",
   "module": "dist/aidol-lucky-draw.es.js",
@@ -19,7 +19,8 @@
     "lucky dip",
     "aidol",
     "lucky wheel",
-    "lucky sudoku"
+    "lucky sudoku",
+    "lucky scratch card"
   ],
   "author": {
     "name": "elenh",
