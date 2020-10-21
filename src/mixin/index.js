@@ -50,12 +50,12 @@ export default class Global {
    * @param {Num} w          文本限制宽度
    * @param {Num} lineHeight 行高
    */
-  drawText(context, t, x, y, w, lineHeight = 20){
+  drawText(context, t, x, y, w, lineHeight = 20) {
     let chr = t.split(''),
       temp = '',           
       row = [];
 
-    for (let a = 0; a < chr.length; a++){
+    for (let a = 0; a < chr.length; a++) {
       if ( context.measureText(temp).width >= w ) {
         row.push(temp);
         temp = '';
@@ -81,30 +81,22 @@ export default class Global {
    * @param {Num} cornerRadius 
    */
   roundedRect(context, cornerX, cornerY, width, height, cornerRadius) {
-      if (width > 0) context.moveTo(cornerX + cornerRadius, cornerY);
-      else           context.moveTo(cornerX - cornerRadius, cornerY);
+    if (width > 0) {
+      context.moveTo(cornerX + cornerRadius, cornerY);
+    } else {
+      context.moveTo(cornerX - cornerRadius, cornerY);
+    }
 
-      context.arcTo(cornerX + width, cornerY,
-          cornerX + width, cornerY + height,
-          cornerRadius);
+    context.arcTo(cornerX + width, cornerY, cornerX + width, cornerY + height, cornerRadius);
 
-      context.arcTo(cornerX + width, cornerY + height,
-          cornerX, cornerY + height,
-          cornerRadius);
+    context.arcTo(cornerX + width, cornerY + height, cornerX, cornerY + height, cornerRadius);
 
-      context.arcTo(cornerX, cornerY + height,
-          cornerX, cornerY,
-          cornerRadius);
+    context.arcTo(cornerX, cornerY + height, cornerX, cornerY, cornerRadius);
 
-      if (width > 0) {
-          context.arcTo(cornerX, cornerY,
-              cornerX + cornerRadius, cornerY,
-              cornerRadius);
-      }
-      else {
-          context.arcTo(cornerX, cornerY,
-              cornerX - cornerRadius, cornerY,
-              cornerRadius);
-      }
+    if (width > 0) {
+      context.arcTo(cornerX, cornerY, cornerX + cornerRadius, cornerY, cornerRadius);
+    } else {
+      context.arcTo(cornerX, cornerY, cornerX - cornerRadius, cornerY, cornerRadius);
+    }
   }
 }
