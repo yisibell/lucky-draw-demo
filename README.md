@@ -189,10 +189,11 @@ $ npm i @aidol/lucky-draw -S
 | sudokuItemUnactiveTxtColor | 否 | **string** | 奖项方块文字的颜色 | `rgb(48, 44, 43)` |
 | sudokuItemUnactiveShadowColor | 否 | **string** | 奖项方块阴影的颜色 | `rgb(255, 193, 200)` |
 | sudokuItemActiveColor | 否 | **string** | 跳动方块的颜色 | `rgb(254, 150, 51)` |
-| sudokuItemActiveTxtColor | 否 | **tring** | 跳动方块文字的颜色 | `rgb(255, 255, 255)` |
-| sudokuItemActiveShadowColor | 否 | **tring** | 跳动方块阴影的颜色 | `rgb(255, 193, 200)` |
+| sudokuItemActiveTxtColor | 否 | **string** | 跳动方块文字的颜色 | `rgb(255, 255, 255)` |
+| sudokuItemActiveShadowColor | 否 | **string** | 跳动方块阴影的颜色 | `rgb(255, 193, 200)` |
+| buttonFont | 否 | **string** | 按钮文案 | `START` |
 | buttonColor | 否 | **string** | 按钮的颜色 | `rgb(255, 216, 1)` |
-| buttonTxtColor | 否 | **string** | 按钮文字的颜色 | `rgb(172, 97, 1)` |
+| buttonTextColor | 否 | **string** | 按钮文字的颜色 | `rgb(172, 97, 1)` |
 | buttonShadowColor | 否 | **string** | 按钮阴影的颜色 | `rgb(253, 177, 1)` |
 | duration | 否 | **number** | 动画时长 | 4000 |
 | velocity | 否 | **number** | 动画速率变化值（峰值） | `300` |

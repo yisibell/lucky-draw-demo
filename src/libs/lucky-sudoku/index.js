@@ -20,15 +20,14 @@ export default class LuckySudoku extends Global {
     this.sudokuItemActiveTxtColor = options.sudokuItemActiveTxtColor           || 'rgb(255, 255, 255)';
     this.sudokuItemActiveShadowColor = options.sudokuItemActiveShadowColor     || 'rgb(255, 193, 200)';
 
-    this.buttonColor = options.buttonColor             || 'rgb(255, 216, 1)';
-    this.buttonTxtColor = options.buttonTxtColor       || 'rgb(172, 97, 1)';
-    this.buttonShadowColor = options.buttonShadowColor || 'rgb(253, 177, 1)';
+    this.hasButton = options.hasButton || true; // 是否渲染抽奖触发按钮
+    this.buttonFont = options.buttonFont || 'START'; // 按钮文字
+    this.buttonColor = options.buttonColor             || 'rgb(255, 216, 1)';  // 按钮颜色
+    this.buttonTextColor = options.buttonTextColor       || 'rgb(172, 97, 1)';   // 按钮文字颜色
+    this.buttonShadowColor = options.buttonShadowColor || 'rgb(253, 177, 1)';  // 按钮阴影颜色
 
     this.duration = options.duration || 4000;
     this.velocity = options.velocity || 300;
-
-    this.hasButton = options.hasButton || true;
-
     this.finish = options.finish;
 
     this.AWARDS_ROW_LENGTH = Math.floor((this.awards.length) / 4) + 1;
@@ -45,10 +44,10 @@ export default class LuckySudoku extends Global {
     this.SUDOKU_ITEM_TXT_SIZE = `bold ${this.SUDOKU_ITEM_SIZE * .12}px Helvetica`;
 
     this.BUTTON_SIZE = this.sudokuSize - (this.SUDOKU_ITEM_SIZE * 2 + this.SUDOKU_ITEM_MARGIN * 3);
-    this.BUTTON_TXT_SIZE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`;
+    this.BUTTON_TEXT_SIZE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`;
 
-    this._positions = [];
-    this._buttonPosition = [];
+    this._positions = []; // 各奖项坐标
+    this._buttonPosition = {}; // 按钮坐标
 
     this._isAnimate = false;
     this._jumpIndex = Math.floor(Math.random() * this.AWARDS_LEN);
@@ -246,13 +245,13 @@ export default class LuckySudoku extends Global {
 
     // ----- 绘制文字
     context.save();
-    context.fillStyle = this.buttonTxtColor;
-    context.font = this.BUTTON_TXT_SIZE;
+    context.fillStyle = this.buttonTextColor;
+    context.font = this.BUTTON_TEXT_SIZE;
     context.translate(
-        x + this.BUTTON_SIZE / 2 - context.measureText('立即抽奖').width / 2, 
+        x + this.BUTTON_SIZE / 2 - context.measureText(this.buttonFont).width / 2, 
         y + this.BUTTON_SIZE / 2 + 10
     );
-    context.fillText('立即抽奖', 0, 0);
+    context.fillText(this.buttonFont, 0, 0);
     context.restore();
     // -----
 
