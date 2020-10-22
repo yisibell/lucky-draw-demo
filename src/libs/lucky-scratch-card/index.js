@@ -1,29 +1,38 @@
 import Global from 'src/mixin'
+import { isHtmlElement } from 'src/utils'
 
 export default class ScratchCard extends Global {
-  constructor (options) {
-      super();
+  constructor (el, options) {
+    super();
 
-      this.style = options.style;
-      this.awardBackgroundImage = options.awardBackgroundImage;
+    this.canvas = isHtmlElement(el) ? el : document.querySelector(el);
+    this.ctx = this.canvas.getContext('2d');
 
-      this.eraserSize = options.eraserSize || 15;
-      this.coverColor = options.coverColor || '#b5b5b5';
+    this.style = options.style;
+    this.awardBackgroundImage = options.awardBackgroundImage;
 
-      this._dragging = false;
+    this.eraserSize = options.eraserSize || 15;
+    this.coverColor = options.coverColor || '#b5b5b5';
+
+    this._dragging = false;
+
+    if (this.canvas && this.ctx) {
+      this.render()
+    }
   };
 
   /**
    * 绘制刮涂层
-   * @param {Obj} context 
    */
-  drawCover(context) {
-      context.save();
-      context.fillStyle = this.coverColor;
-      context.beginPath();
-      context.rect(0, 0, context.canvas.width, context.canvas.height);
-      context.fill();
-      context.restore();
+  drawCover() {
+    const context = this.ctx;
+
+    context.save();
+    context.fillStyle = this.coverColor;
+    context.beginPath();
+    context.rect(0, 0, context.canvas.width, context.canvas.height);
+    context.fill();
+    context.restore();
   };
 
   /**
@@ -40,40 +49,43 @@ export default class ScratchCard extends Global {
       context.restore();
   };
 
-  drawAwardBackgroundImage(canvas) {
-      canvas.setAttribute(
-          'style', 
-          `background: url(${this.awardBackgroundImage}) no-repeat center / cover;${this.style}`
-      )
-  }
+  drawAwardBackgroundImage() {
+    this.canvas.setAttribute(
+      'style', 
+      `background: url(${this.awardBackgroundImage}) no-repeat center / cover;${this.style}`
+    )
+  };
 
-  render(canvas, context) {
-      this.drawCover(context);
-      this.drawAwardBackgroundImage(canvas);
+  render() {
+    const canvas = this.canvas;
+    const context = this.ctx;
 
-      ['touchstart', 'mousedown'].forEach((event) => {
-          canvas.addEventListener(event, (e) => {
-              let loc = super.windowToCanvas(canvas, e);
-              this._dragging = true;
-              this.drawEraser(context, loc);
-          })
-      });
+    this.drawCover();
+    this.drawAwardBackgroundImage(canvas);
 
-      ['touchmove', 'mousemove'].forEach((event) => {
-          canvas.addEventListener(event, (e) => {
-              let loc;
-              if (this._dragging) {
-                  loc = super.windowToCanvas(canvas, e);
-                  this.drawEraser(context, loc);
-              }
-          })
-      });
+    ['touchstart', 'mousedown'].forEach((event) => {
+        canvas.addEventListener(event, (e) => {
+            let loc = super.windowToCanvas(canvas, e);
+            this._dragging = true;
+            this.drawEraser(context, loc);
+        })
+    });
+
+    ['touchmove', 'mousemove'].forEach((event) => {
+        canvas.addEventListener(event, (e) => {
+            let loc;
+            if (this._dragging) {
+                loc = super.windowToCanvas(canvas, e);
+                this.drawEraser(context, loc);
+            }
+        })
+    });
 
 
-      ['touchend', 'mouseup'].forEach((event) => {
-          canvas.addEventListener(event, (e) => {
-              this._dragging = false;
-          })
-      });
-  }
+    ['touchend', 'mouseup'].forEach((event) => {
+        canvas.addEventListener(event, (e) => {
+            this._dragging = false;
+        })
+    });
+  };
 }

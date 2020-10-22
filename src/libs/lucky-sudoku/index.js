@@ -1,62 +1,71 @@
 import Global from 'src/mixin'
+import { isHtmlElement } from 'src/utils'
 
-export default class Sudoku extends Global {
-  constructor (options) {
-      super();
-      
-      this.awards =           options.awards;
-      this.sudokuSize =       options.sudokuSize;
-      this.sudokuItemRadius = options.sudokuItemRadius || 8;
+export default class LuckySudoku extends Global {
+  constructor (el, options) {
+    super();
 
-      this.sudokuItemUnactiveColor = options.sudokuItemUnactiveColor             || 'rgb(255, 235, 236)';
-      this.sudokuItemUnactiveTxtColor = options.sudokuItemUnactiveTxtColor       || 'rgb(48, 44, 43)';
-      this.sudokuItemUnactiveShadowColor = options.sudokuItemUnactiveShadowColor || 'rgb(255, 193, 200)';
+    this.canvas = isHtmlElement(el) ? el : document.querySelector(el);
+    this.ctx = this.canvas.getContext('2d');
+    
+    this.awards =           options.awards;
+    this.sudokuSize =       options.sudokuSize || this.canvas.width; // 九宫格宽度大小
+    this.sudokuItemRadius = options.sudokuItemRadius || 8;
 
-      this.sudokuItemActiveColor = options.sudokuItemActiveColor                 || 'rgb(254, 150, 51)';
-      this.sudokuItemActiveTxtColor = options.sudokuItemActiveTxtColor           || 'rgb(255, 255, 255)';
-      this.sudokuItemActiveShadowColor = options.sudokuItemActiveShadowColor     || 'rgb(255, 193, 200)';
+    this.sudokuItemUnactiveColor = options.sudokuItemUnactiveColor             || 'rgb(255, 235, 236)';
+    this.sudokuItemUnactiveTxtColor = options.sudokuItemUnactiveTxtColor       || 'rgb(48, 44, 43)';
+    this.sudokuItemUnactiveShadowColor = options.sudokuItemUnactiveShadowColor || 'rgb(255, 193, 200)';
 
-      this.buttonColor = options.buttonColor             || 'rgb(255, 216, 1)';
-      this.buttonTxtColor = options.buttonTxtColor       || 'rgb(172, 97, 1)';
-      this.buttonShadowColor = options.buttonShadowColor || 'rgb(253, 177, 1)';
+    this.sudokuItemActiveColor = options.sudokuItemActiveColor                 || 'rgb(254, 150, 51)';
+    this.sudokuItemActiveTxtColor = options.sudokuItemActiveTxtColor           || 'rgb(255, 255, 255)';
+    this.sudokuItemActiveShadowColor = options.sudokuItemActiveShadowColor     || 'rgb(255, 193, 200)';
 
-      this.duration = options.duration || 4000;
-      this.velocity = options.velocity || 300;
+    this.buttonColor = options.buttonColor             || 'rgb(255, 216, 1)';
+    this.buttonTxtColor = options.buttonTxtColor       || 'rgb(172, 97, 1)';
+    this.buttonShadowColor = options.buttonShadowColor || 'rgb(253, 177, 1)';
 
-      this.hasButton = options.hasButton || 'true';
+    this.duration = options.duration || 4000;
+    this.velocity = options.velocity || 300;
 
-      this.finish = options.finish;
+    this.hasButton = options.hasButton || true;
 
-      this.AWARDS_ROW_LENGTH = Math.floor((this.awards.length) / 4) + 1;
-      this.AWARDS_STEP = this.AWARDS_ROW_LENGTH - 1;
-      this.AWARDS_LEN =  this.AWARDS_STEP * 4;
+    this.finish = options.finish;
 
-      this.LETF_TOP_POINT =     0;
-      this.RIGHT_TOP_POINT =    this.AWARDS_STEP;
-      this.RIGHT_BOTTOM_POINT = this.AWARDS_STEP * 2;
-      this.LEFT_BOTTOM_POINT =  this.AWARDS_STEP * 2 + this.AWARDS_STEP;
+    this.AWARDS_ROW_LENGTH = Math.floor((this.awards.length) / 4) + 1;
+    this.AWARDS_STEP = this.AWARDS_ROW_LENGTH - 1;
+    this.AWARDS_LEN =  this.AWARDS_STEP * 4;
 
-      this.SUDOKU_ITEM_MARGIN =   (this.sudokuSize / this.AWARDS_ROW_LENGTH) / 6;
-      this.SUDOKU_ITEM_SIZE =     (this.sudokuSize / this.AWARDS_ROW_LENGTH) - this.SUDOKU_ITEM_MARGIN;
-      this.SUDOKU_ITEM_TXT_SIZE = `bold ${this.SUDOKU_ITEM_SIZE * .12}px Helvetica`;
+    this.LETF_TOP_POINT =     0;
+    this.RIGHT_TOP_POINT =    this.AWARDS_STEP;
+    this.RIGHT_BOTTOM_POINT = this.AWARDS_STEP * 2;
+    this.LEFT_BOTTOM_POINT =  this.AWARDS_STEP * 2 + this.AWARDS_STEP;
 
-      this.BUTTON_SIZE = this.sudokuSize - (this.SUDOKU_ITEM_SIZE * 2 + this.SUDOKU_ITEM_MARGIN * 3);
-      this.BUTTON_TXT_SIZE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`;
+    this.SUDOKU_ITEM_MARGIN =   (this.sudokuSize / this.AWARDS_ROW_LENGTH) / 6;
+    this.SUDOKU_ITEM_SIZE =     (this.sudokuSize / this.AWARDS_ROW_LENGTH) - this.SUDOKU_ITEM_MARGIN;
+    this.SUDOKU_ITEM_TXT_SIZE = `bold ${this.SUDOKU_ITEM_SIZE * .12}px Helvetica`;
 
-      this._positions = [];
-      this._buttonPosition = [];
+    this.BUTTON_SIZE = this.sudokuSize - (this.SUDOKU_ITEM_SIZE * 2 + this.SUDOKU_ITEM_MARGIN * 3);
+    this.BUTTON_TXT_SIZE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`;
 
-      this._isAnimate = false;
-      this._jumpIndex = Math.floor(Math.random() * this.AWARDS_LEN);
-      this._jumpingTime = 0;
-      this._jumpTotalTime;
-      this._jumpChange;
+    this._positions = [];
+    this._buttonPosition = [];
 
-      this._canvasStyle;
+    this._isAnimate = false;
+    this._jumpIndex = Math.floor(Math.random() * this.AWARDS_LEN);
+    this._jumpingTime = 0;
+    this._jumpTotalTime;
+    this._jumpChange;
 
+    this._canvasStyle;
+
+    if (this.canvas && this.ctx) {
+      this.render()
+    }
   };
 
-  drawSudoku(context) {
+  drawSudoku() {
+    const context = this.ctx;
+
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
 
       // 顶点坐标
@@ -210,123 +219,136 @@ export default class Sudoku extends Global {
       // -----
   };
 
-  drawButton(context) {
-      let x = this.SUDOKU_ITEM_SIZE + this.SUDOKU_ITEM_MARGIN,
-          y = this.SUDOKU_ITEM_SIZE + this.SUDOKU_ITEM_MARGIN;
+  drawButton() {
+    const context = this.ctx;
 
-      // ----- 绘制背景
-      context.save();
-      context.fillStyle = this.buttonColor;
-      context.shadowOffsetX = 0;
-      context.shadowOffsetY = 4;
-      context.shadowBlur = 0;
-      context.shadowColor = this.buttonShadowColor;
-      context.beginPath();
-      super.roundedRect(
-          context, x, y,
-          this.BUTTON_SIZE, this.BUTTON_SIZE, 
-          this.sudokuItemRadius,
-          this.buttonColor,
-          this.buttonShadowColor
-      );
-      context.fill();
-      context.restore();
-      // -----
+    let x = this.SUDOKU_ITEM_SIZE + this.SUDOKU_ITEM_MARGIN,
+        y = this.SUDOKU_ITEM_SIZE + this.SUDOKU_ITEM_MARGIN;
 
-      // ----- 绘制文字
-      context.save();
-      context.fillStyle = this.buttonTxtColor;
-      context.font = this.BUTTON_TXT_SIZE;
-      context.translate(
-          x + this.BUTTON_SIZE / 2 - context.measureText('立即抽奖').width / 2, 
-          y + this.BUTTON_SIZE / 2 + 10
-      );
-      context.fillText('立即抽奖', 0, 0);
-      context.restore();
-      // -----
+    // ----- 绘制背景
+    context.save();
+    context.fillStyle = this.buttonColor;
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 4;
+    context.shadowBlur = 0;
+    context.shadowColor = this.buttonShadowColor;
+    context.beginPath();
+    super.roundedRect(
+      context, x, y,
+      this.BUTTON_SIZE, this.BUTTON_SIZE, 
+      this.sudokuItemRadius,
+      this.buttonColor,
+      this.buttonShadowColor
+    );
+    context.fill();
+    context.restore();
+    // -----
 
-      this._buttonPosition = {x, y};
+    // ----- 绘制文字
+    context.save();
+    context.fillStyle = this.buttonTxtColor;
+    context.font = this.BUTTON_TXT_SIZE;
+    context.translate(
+        x + this.BUTTON_SIZE / 2 - context.measureText('立即抽奖').width / 2, 
+        y + this.BUTTON_SIZE / 2 + 10
+    );
+    context.fillText('立即抽奖', 0, 0);
+    context.restore();
+    // -----
+
+    this._buttonPosition = {x, y};
   };
 
-  createButtonPath(context) {
-      context.beginPath();
-      super.roundedRect(
-          context,
-          this._buttonPosition.x, this._buttonPosition.y,
-          this.BUTTON_SIZE, this.BUTTON_SIZE, 
-          this.sudokuItemRadius
-      );
+  createButtonPath() {
+    const context = this.ctx;
+
+    context.beginPath();
+    super.roundedRect(
+      context,
+      this._buttonPosition.x, this._buttonPosition.y,
+      this.BUTTON_SIZE, this.BUTTON_SIZE, 
+      this.sudokuItemRadius
+    );
   };
 
-  sudokuItemMove(context) {
-      this._isAnimate = true;
+  sudokuItemMove() {
+    const context = this.ctx;
 
-      if (this._jumpIndex < this.AWARDS_LEN - 1)        this._jumpIndex ++;
-      else if (this._jumpIndex >= this.AWARDS_LEN -1 )  this._jumpIndex = 0;
+    this._isAnimate = true;
+    
+    if (this._jumpIndex < this.AWARDS_LEN - 1)        this._jumpIndex ++;
+    else if (this._jumpIndex >= this.AWARDS_LEN -1 )  this._jumpIndex = 0;
 
-      this._jumpingTime += 100;
+    this._jumpingTime += 100;
 
-      if (this._jumpingTime >= this._jumpTotalTime) {
-          this._isAnimate = false;
-          if (this.finish) {
-              if (this._jumpIndex != 0)       this.finish(this._jumpIndex - 1)
-              else if (this._jumpIndex === 0) this.finish(this.AWARDS_LEN - 1);
-          }
-          return;
-      };
+    if (this._jumpingTime >= this._jumpTotalTime) {
+      this._isAnimate = false;
+      if (this.finish) {
+        if (this._jumpIndex != 0)       this.finish(this._jumpIndex - 1)
+        else if (this._jumpIndex === 0) this.finish(this.AWARDS_LEN - 1);
+      }
+      return;
+    };
 
-      this.drawSudoku(context);
-      if (this.hasButton === 'true') this.drawButton(context);
-      this.drawSudokuItem(
-          context,
-          this._positions[this._jumpIndex].x, this._positions[this._jumpIndex].y,
-          this.SUDOKU_ITEM_SIZE, this.sudokuItemRadius, 
-          this.awards[this._jumpIndex].type ,this.awards[this._jumpIndex].content,
-          this.SUDOKU_ITEM_TXT_SIZE, this.sudokuItemActiveTxtColor,
-          this.sudokuItemActiveColor,
-          this.sudokuItemActiveShadowColor
-      );
+    this.drawSudoku();
+    if (this.hasButton) this.drawButton();
+    this.drawSudokuItem(
+      context,
+      this._positions[this._jumpIndex].x, 
+      this._positions[this._jumpIndex].y,
+      this.SUDOKU_ITEM_SIZE, 
+      this.sudokuItemRadius, 
+      this.awards[this._jumpIndex].type,
+      this.awards[this._jumpIndex].content,
+      this.SUDOKU_ITEM_TXT_SIZE, 
+      this.sudokuItemActiveTxtColor,
+      this.sudokuItemActiveColor,
+      this.sudokuItemActiveShadowColor
+    );
 
-      setTimeout(this.sudokuItemMove.bind(this, context), 50 + super.easeOut(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime));
+    setTimeout(this.sudokuItemMove.bind(this), 50 + super.easeOut(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime));
   };
 
-  luckyDraw(context) {
-      this._jumpingTime = 0;
-      this._jumpTotalTime = Math.random() * 1000 + this.duration;
-      this._jumpChange = Math.random() * 3 + this.velocity;
-      this.sudokuItemMove(context);
-  }
+  luckyDraw() {
+    console.log(this._jumpIndex);
+    this._jumpingTime = 0;
+    this._jumpTotalTime = Math.random() * 1000 + this.duration;
+    this._jumpChange = Math.random() * 3 + this.velocity;
+    this.sudokuItemMove();
+  };
 
-  render(canvas, context) {
-      this._canvasStyle = canvas.getAttribute('style');
-      this.drawSudoku(context);
+  render() {
+    const canvas = this.canvas;
+    const context = this.ctx;
 
-      if (this.hasButton === 'true') {
-          this.drawButton(context);
-          
-          ['mousedown', 'touchstart'].forEach((event) => {
-              canvas.addEventListener(event, (e) => {
-                  let loc = super.windowToCanvas(canvas, e);
+    this._canvasStyle = canvas.getAttribute('style') || '';
+    this.drawSudoku();
 
-                  this.createButtonPath(context);
+    if (this.hasButton) {
+      this.drawButton();
+        
+      ['mousedown', 'touchstart'].forEach((event) => {
+          canvas.addEventListener(event, (e) => {
+              let loc = super.windowToCanvas(canvas, e);
 
-                  if (context.isPointInPath(loc.x, loc.y) && !this._isAnimate) {
-                      this.luckyDraw(context);
-                  }
-              })
-          });
+              this.createButtonPath();
 
-          canvas.addEventListener('mousemove', (e) => {
-              let loc2 = super.windowToCanvas(canvas, e);
-              this.createButtonPath(context);
-
-              if (context.isPointInPath(loc2.x, loc2.y)) {
-                  canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
-              } else {
-                  canvas.setAttribute('style', this._canvasStyle);
+              if (context.isPointInPath(loc.x, loc.y) && !this._isAnimate) {
+                  this.luckyDraw();
               }
           })
-      }
-  }
+      });
 
+      canvas.addEventListener('mousemove', (e) => {
+          let loc2 = super.windowToCanvas(canvas, e);
+          this.createButtonPath();
+
+          if (context.isPointInPath(loc2.x, loc2.y)) {
+              canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
+          } else {
+              canvas.setAttribute('style', this._canvasStyle);
+          }
+      })
+    }
+  };
 }

@@ -6,22 +6,13 @@
     <title>lucky sudoku demo</title>
   </head>
   <body>
-    <canvas
-      id="canvas"
-      width="500px"
-      height="500px"
-      style="margin: 100px 0 0 100px"
-    ></canvas>
+    <canvas id="canvas" width="500" height="500"></canvas>
 
     <script src="../dist/aidol-lucky-draw.umd.js"></script>
     <script>
       const { LuckySudoku } = AidolLuckyDraw;
-      const canvas = document.getElementById("canvas"),
-        context = canvas.getContext("2d");
-
-      new LuckySudoku({
-        sudokuSize: canvas.width,
-
+     
+      new LuckySudoku('#canvas', {
         awards: [
           { type: "text", content: "30元话费" },
           { type: "text", content: "iphone8" },
@@ -40,8 +31,8 @@
           },
           { type: "text", content: "火星一日游" },
         ],
-
         finish: function (index) {
+          console.log(index);
           switch (this.awards[index].type) {
             case "text":
               alert("🎉恭喜您中得：" + this.awards[index].content);
@@ -54,8 +45,8 @@
               alert("💔很遗憾，您没有中奖~");
               break;
           }
-        },
-      }).render(canvas, context);
+        }
+      })
     </script>
   </body>
 </html>
