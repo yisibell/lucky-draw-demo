@@ -199,6 +199,9 @@ $ npm i @aidol/lucky-draw -S
 | velocity | 否 | **number** | 动画速率变化值（峰值） | `300` |
 | hasButton | 否 | **boolean** | 九宫格是否自带按钮；<br />若设置为 `false`，九宫格没有按钮，需要用户在外部自定义抽奖按钮；<br />抽奖按钮需调用对象的 `luckyDraw()` 方法；<br /> | `true` |
 | finish | 否 | **Function** | 获取奖品信息后的回调，返回一个下标，根据该下标查找抽到什么奖品 | `/` |
+| fetchAward | 是 | **Function** | 抓取获奖奖品索引函数，该函数被传入奖品列表参数，需返回一个中奖项下标，插件内部会根据中奖下标执行动画 | `undefined` |
+| animation | 否 | **Function** | 自定义大转盘旋转动画缓动函数 | 源码内部使用 `easeOut` 的模式 |
+| beforeStart | 否 | **Function** | 大转盘动画开始前钩子函数，被转入 `done` 回调函数作为参数，如果使用了该钩子函数， `done` 函数必须被执行，你可以对 `done` 回调传入 **中奖下标** 或 `-1` | `/` |
 
 <br />
 

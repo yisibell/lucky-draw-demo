@@ -29,6 +29,9 @@ export default class LuckySudoku extends Global {
     this.duration = options.duration || 4000; // 动画时间
     this.velocity = options.velocity || 300;  // 动画峰值
     this.finish = options.finish;             // 动画完成回调
+    this.fetchAward = options.fetchAward;     // 获取中奖项索引
+    this.beforeStart = options.beforeStart || function(done) { done() }; // 抽奖开始前钩子函数
+    this.animation = options.animation; // 缓动函数
 
     // 宫格的绘制步骤: 通过画布的 4 个顶点，分4步进行绘制。
 
@@ -53,18 +56,24 @@ export default class LuckySudoku extends Global {
 
     this._isAnimate = false; // 是否抽奖进行中
     this._jumpIndex = 0; // 当前跳动奖项块索引值 Math.floor(Math.random() * this.AWARDS_LEN)
-    this._jumpingTime = 0;
+    this._jumpingTime = 0; // 当前动画时间点
+    this._jumpingTimeStep = 100 / (this.AWARDS_LEN / 8); // 动画跳动时间叠加步数值
     this._jumpTotalTime;
     this._jumpChange;
+    this._awardedIndex; // 当前中奖项索引
 
-    this._canvasStyle;
+    this._canvasStyle = '';
 
     if (this.canvas && this.ctx) {
       this.render()
     }
   };
 
-  drawSudoku() {
+  /**
+   * 绘制宫格
+   * @author hongwenqing(elenh)
+   */
+  draw() {
     const context = this.ctx;
 
       context.clearRect(0, 0, context.canvas.width, context.canvas.height);
@@ -164,6 +173,10 @@ export default class LuckySudoku extends Global {
       };
   };
 
+  /**
+   * 绘制奖项块
+   * @author hongwenqing(elenh)
+   */
   drawSudokuItem(context, x, y, size, radius, type, content, txtSize, txtColor, bgColor, shadowColor) {
       // ----- 绘制方块
       context.save();
@@ -220,6 +233,10 @@ export default class LuckySudoku extends Global {
       // -----
   };
 
+  /**
+   * 绘制抽奖按钮
+   * @author hongwenqing(elenh)
+   */
   drawButton() {
     const context = this.ctx;
 
@@ -281,7 +298,7 @@ export default class LuckySudoku extends Global {
 
     this._isAnimate = true;
 
-    this.drawSudoku();
+    this.draw();
     if (this.hasButton) this.drawButton();
     this.drawSudokuItem(
       context,
@@ -300,10 +317,10 @@ export default class LuckySudoku extends Global {
     if (this._jumpIndex < this.AWARDS_LEN - 1)        this._jumpIndex ++;
     else if (this._jumpIndex >= this.AWARDS_LEN -1)  this._jumpIndex = 0;
 
-    this._jumpingTime += 100;
+    this._jumpingTime += this._jumpingTimeStep;
 
     if (this._jumpingTime <= this._jumpTotalTime) {
-      const step = super.easeOut(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime);
+      const step = this.easingFunc(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime);
     
       setTimeout(
         this.sudokuItemMove.bind(this),
@@ -311,63 +328,108 @@ export default class LuckySudoku extends Global {
       );
     } else {
       this._isAnimate = false;
-      if (this.finish) {
-        if (this._jumpIndex != 0)       this.finish(this._jumpIndex - 1);
-        else if (this._jumpIndex === 0) this.finish(this.AWARDS_LEN - 1);
-      }
+      if (this.finish) this.finish(this._awardedIndex, this.awards)
     }
     
   };
 
-  getAwardedJumpEnd(index) {
-    const each_steps = [this.SUDOKU_ITEM_MARGIN]
-    for (let i = 0; i < this.AWARDS_LEN; i++) {
-      each_steps.push(each_steps[i] + this.SUDOKU_ITEM_MARGIN)
-    }
-    console.log(each_steps);
-    return each_steps[index]
-  };
-
+  /**
+   * 开始抽奖
+   * @author hongwenqing(elenh)
+   */
   luckyDraw() {
-    this._jumpingTime = 0;
-    this._jumpTotalTime = this.duration + 1000; // Math.random() * 1000 + this.duration
-    this._jumpChange = Math.random() * 3 + this.velocity; //  Math.random() * 3 + this.velocity;
-    
-    this.sudokuItemMove();
+    this.beforeStart((awardedIndex) => {
+      if (awardedIndex >= 0) {
+        this._awardedIndex = awardedIndex;
+      } else if(this.fetchAward) {
+        this._awardedIndex = this.fetchAward(this.awards);
+      } else {
+        throw new Error('if you do not use the beforeStart hook, then fetchAward function is required.');
+      }
+
+      if (this._awardedIndex < 0 || this._awardedIndex > this.awards.length - 1) {
+        throw new Error('Beyond the scope of awards.');
+      }
+
+      this._jumpIndex = 0;
+      this._jumpingTime = 0;
+      this._jumpChange = Math.random() * 3 + this.velocity;
+      this._jumpTotalTime = this.duration + (this._jumpingTimeStep * this._awardedIndex);
+      
+      this.sudokuItemMove();
+    })
   };
 
-  render() {
+  easingFunc(...args) {
+    if (this.animation) {
+      return this.animation(...args)
+    }
+    return super.easeOut(...args)
+  };
+
+  /**
+   * 更新奖项列表
+   */
+  updateAwards(awards) {
+    this.awards = awards;
+    this.draw()
+  };
+
+  /**
+   * 销毁
+   * @author hongwenqing(elenh)
+   */
+  destroy() {
+    ['touchstart', 'mousedown'].forEach(name => {
+      this.canvas.removeEventListener(name, this.btnClickListener)
+    })
+
+    this.canvas.removeEventListener('mousemove', this.btnMoveListener)
+  };
+
+  btnClickListener(e) {
     const canvas = this.canvas;
     const context = this.ctx;
 
+    let loc = super.windowToCanvas(canvas, e);
+
+    this.createButtonPath();
+
+    if (context.isPointInPath(loc.x, loc.y) && !this._isAnimate) {
+      this.luckyDraw();
+    }
+  };
+
+  btnMoveListener(e) {
+    const canvas = this.canvas;
+    const context = this.ctx;
+
+    let loc2 = super.windowToCanvas(canvas, e);
+    this.createButtonPath();
+
+    if (context.isPointInPath(loc2.x, loc2.y)) {
+        canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
+    } else {
+        canvas.setAttribute('style', this._canvasStyle);
+    }
+  };
+
+  render() {
+    this.destroy();
+
+    const canvas = this.canvas;
+    
     this._canvasStyle = canvas.getAttribute('style') || '';
-    this.drawSudoku();
+    this.draw();
 
     if (this.hasButton) {
       this.drawButton();
         
       ['mousedown', 'touchstart'].forEach((event) => {
-          canvas.addEventListener(event, (e) => {
-              let loc = super.windowToCanvas(canvas, e);
-
-              this.createButtonPath();
-
-              if (context.isPointInPath(loc.x, loc.y) && !this._isAnimate) {
-                  this.luckyDraw();
-              }
-          })
+        canvas.addEventListener(event, this.btnClickListener.bind(this));
       });
 
-      canvas.addEventListener('mousemove', (e) => {
-          let loc2 = super.windowToCanvas(canvas, e);
-          this.createButtonPath();
-
-          if (context.isPointInPath(loc2.x, loc2.y)) {
-              canvas.setAttribute('style', `cursor: pointer;${this._canvasStyle}`);
-          } else {
-              canvas.setAttribute('style', this._canvasStyle);
-          }
-      })
+      canvas.addEventListener('mousemove', this.btnMoveListener.bind(this));
     }
   };
 }

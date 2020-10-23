@@ -22,6 +22,7 @@
       const { LuckySudoku } = AidolLuckyDraw;
      
       const sudoku = new LuckySudoku('#canvas', {
+        duration: 4000,
         awards: [
           { type: "text", content: "30元话费" },
           { type: "text", content: "iphone8" },
@@ -39,14 +40,53 @@
               "https://img11.360buyimg.com/n7/jfs/t3187/325/423764794/213696/f4eb1dbd/57b68142Nbe104228.jpg",
           },
           { type: "text", content: "火星一日游" },
+         
+          { type: "text", content: "30元话费" },
+          { type: "text", content: "iphone8" },
+          { type: "losing", content: "未中奖" },
+          { type: "text", content: "MackBook Pro" },
+          {
+            type: "image",
+            content:
+              "https://img12.360buyimg.com/n7/jfs/t4807/209/1436278963/496606/8e486549/58f0884eNcec87657.jpg",
+          },
+          { type: "losing", content: "未中奖" },
+          {
+            type: "image",
+            content:
+              "https://img11.360buyimg.com/n7/jfs/t3187/325/423764794/213696/f4eb1dbd/57b68142Nbe104228.jpg",
+          },
+          { type: "text", content: "火星一日游" },
         ],
+        fetchAward: function (awards) {
+          // 你可以在这定义获奖规则
+          // 插件本身只需要管交互效果
+
+          let index = Number.parseInt(Math.random() * 10);
+          if (index > awards.length - 1) {
+            index = awards.length - 1
+          }
+          console.log(index);
+          return index; // 需要返回中奖下标索引值
+        },
+        beforeStart: function(done) {
+          // 如果，你只是想在转盘开始旋转前，做些其它事情，而不是拉取中奖项索引
+          // 你可以在最后执行 done(-1)，这时候，你就必须定义 fetchAward 函数
+          done(-1)
+          return
+          // 或许你想将中奖概率，获奖规则交给后端控制
+          // 那么，你可以在该钩子函数中调起一个异步接口来获取中奖项
+          setTimeout(() => {
+            const awardedIndex = 4
+            // 将中奖项索引转入 done 回调，并执行
+            done(awardedIndex)
+          }, 2000)
+        },
         finish: function (index) {
           console.log(index);
           console.log(this.awards);
         }
       })
-
-      console.log(sudoku);
     </script>
   </body>
 </html>
