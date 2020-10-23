@@ -271,7 +271,7 @@ export default class LuckyWheel extends Global {
       } else if(this.fetchAward) {
         this._awardedIndex = this.fetchAward(this.awards);
       } else {
-        throw new Error('if you do not use the beforeStart hock, then fetchAward function is required.');
+        throw new Error('if you do not use the beforeStart hook, then fetchAward function is required.');
       }
 
       if (this._awardedIndex < 0 || this._awardedIndex > this.awards.length - 1) {
@@ -288,7 +288,7 @@ export default class LuckyWheel extends Global {
    * @author hongwenqing(elenh)
    * @param {Array of Object} awards 奖项列表
    * @param {boolean} initial 是否计算初始角度, 而并非当前角度
-   * @return {Array of number} 弧度数数组
+   * @return {Array of number} 角度数组
    */
   getEachAwardInitRadian(awards, initial = true) {
     const per_rad = (360 / awards.length)

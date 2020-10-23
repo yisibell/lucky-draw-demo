@@ -101,7 +101,7 @@ $ npm i @aidol/lucky-draw -S
 | 属性 | 是否必选 | 类型 | 备注 | 默认值 |
 | :-- | :--: | :-- | :-- | :--: |
 | outsideRadius | 否 | **number** | 大转盘的半径，这个值乘以二不能大于 `canvas` 画布的宽或者高哟！ | `canvas` 宽度值 - `50` |
-| awards | 是 | **Object** | 奖品信息，每组对象代表一个奖项，对象中有两个属性，type 和 content；<br>type 有三个可能的值：<br><br>`text：`将 content 中的值输出为普通文本；<br> `losing：`将 content 中的值输出普通文本，状态为未中奖；<br>`image：`将 content 中的图片地址渲染为图片。| ø |
+| awards | 是 | **Object** | 奖品信息，每组对象代表一个奖项，对象中有两个属性，`type` 和 `content`；<br /> `type` 有三个可能的值：<br /><br /> `text`：将 `content` 中的值输出为普通文本；<br /> `losing`：将 `content` 中的值输出普通文本，状态为未中奖；<br /> `image`: 将 `content` 中的图片地址渲染为图片。| `[]` |
 | evenColor | 否 | **string** | 大转盘第偶数个奖品盘颜色 | `#FF6766` |
 | oddColor | 否 | **string** | 大转盘第奇数个奖品盘颜色 | `#FD5757`|
 | loseColor | 否 | **string** | 大转盘未中奖表盘颜色 | `#F79494` |
@@ -183,7 +183,7 @@ $ npm i @aidol/lucky-draw -S
 | 属性 | 是否必选 | 类型 | 备注 | 默认值 |
 | :-- | :--: | :-- | :-- | :--: |
 | sudokuSize | 是 | **number** | 九宫格的尺寸，一般为 `canvas` 的尺寸 | 当前 `canvas` 的 `width` 值 |
-| awards     | 是 | **Object** | 奖品信息，每组对象代表一个奖项，对象中有两个属性，type 和 content；<br>type 有三个可能的值：<br><br>`text：`将 content 中的值输出为普通文本；<br> `losing：`将 content 中的值输出普通文本，状态为未中奖；<br>`image：`将 content 中的图片地址渲染为图片。 | `/` |
+| awards     | 是 | **Object** | 奖品信息，每组对象代表一个奖项，对象中有两个属性，`type` 和 `content`；<br /> `type` 有三个可能的值：<br /><br /> `text`: 将 `content` 中的值输出为普通文本；<br /> `losing：`将 `content` 中的值输出普通文本，状态为未中奖；<br /> `image`: 将 `content` 中的图片地址渲染为图片。 | `[]` |
 | sudokuItemRadius | 否 | **number** | 奖项小方块的圆角大小 | `8` |
 | sudokuItemUnactiveColor | 否 | **string** | 奖项方块的颜色 | `rgb(255, 235, 236)` |
 | sudokuItemUnactiveTxtColor | 否 | **string** | 奖项方块文字的颜色 | `rgb(48, 44, 43)` |
@@ -195,9 +195,9 @@ $ npm i @aidol/lucky-draw -S
 | buttonColor | 否 | **string** | 按钮的颜色 | `rgb(255, 216, 1)` |
 | buttonTextColor | 否 | **string** | 按钮文字的颜色 | `rgb(172, 97, 1)` |
 | buttonShadowColor | 否 | **string** | 按钮阴影的颜色 | `rgb(253, 177, 1)` |
-| duration | 否 | **number** | 动画时长 | 4000 |
+| duration | 否 | **number** | 动画时长 | `4000` |
 | velocity | 否 | **number** | 动画速率变化值（峰值） | `300` |
-| hasButton | 否 | **boolean** | 九宫格是否自带按钮；<br>若设置为 `false`，九宫格没有按钮，需要用户在外部自定义抽奖按钮；<br>抽奖按钮需调用对象的 `luckyDraw()` 方法；<br> | `true` |
+| hasButton | 否 | **boolean** | 九宫格是否自带按钮；<br />若设置为 `false`，九宫格没有按钮，需要用户在外部自定义抽奖按钮；<br />抽奖按钮需调用对象的 `luckyDraw()` 方法；<br /> | `true` |
 | finish | 否 | **Function** | 获取奖品信息后的回调，返回一个下标，根据该下标查找抽到什么奖品 | `/` |
 
 <br />
@@ -206,17 +206,17 @@ $ npm i @aidol/lucky-draw -S
 
 ``` javascript
 const sudoku = new LuckySudoku({
-    // ...
-    hasButton: false
-    // ...
+  // ...
+  hasButton: false
+  // ...
 });
 
 button.addEventListener('click', function (e) {
-    sudoku.luckyDraw(context);
+  sudoku.luckyDraw();
 })
 ```
 
-<br>
+<br />
 
 ## 幸运刮刮卡
 

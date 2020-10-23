@@ -8,9 +8,9 @@ export default class LuckySudoku extends Global {
     this.canvas = isHtmlElement(el) ? el : document.querySelector(el);
     this.ctx = this.canvas.getContext('2d');
     
-    this.awards =           options.awards;
+    this.awards =           options.awards; // 奖项列表
     this.sudokuSize =       options.sudokuSize || this.canvas.width; // 九宫格宽度大小
-    this.sudokuItemRadius = options.sudokuItemRadius || 8;
+    this.sudokuItemRadius = options.sudokuItemRadius || 8; // 奖项方块圆角值
 
     this.sudokuItemUnactiveColor = options.sudokuItemUnactiveColor             || 'rgb(255, 235, 236)';
     this.sudokuItemUnactiveTxtColor = options.sudokuItemUnactiveTxtColor       || 'rgb(48, 44, 43)';
@@ -26,31 +26,33 @@ export default class LuckySudoku extends Global {
     this.buttonTextColor = options.buttonTextColor       || 'rgb(172, 97, 1)';   // 按钮文字颜色
     this.buttonShadowColor = options.buttonShadowColor || 'rgb(253, 177, 1)';  // 按钮阴影颜色
 
-    this.duration = options.duration || 4000;
-    this.velocity = options.velocity || 300;
-    this.finish = options.finish;
+    this.duration = options.duration || 4000; // 动画时间
+    this.velocity = options.velocity || 300;  // 动画峰值
+    this.finish = options.finish;             // 动画完成回调
 
-    this.AWARDS_ROW_LENGTH = Math.floor((this.awards.length) / 4) + 1;
-    this.AWARDS_STEP = this.AWARDS_ROW_LENGTH - 1;
-    this.AWARDS_LEN =  this.AWARDS_STEP * 4;
+    // 宫格的绘制步骤: 通过画布的 4 个顶点，分4步进行绘制。
+
+    this.AWARDS_ROW_LENGTH = Math.floor((this.awards.length) / 4) + 1; // n * n 的奖项，例如： 9 宫格就是 3*3的。
+    this.AWARDS_STEP = this.AWARDS_ROW_LENGTH - 1; // 该变量表示：每一步，绘制多少个奖项块
+    this.AWARDS_LEN =  this.AWARDS_STEP * 4; // 奖品个数，等同于 this.awards.length
 
     this.LETF_TOP_POINT =     0;
     this.RIGHT_TOP_POINT =    this.AWARDS_STEP;
     this.RIGHT_BOTTOM_POINT = this.AWARDS_STEP * 2;
     this.LEFT_BOTTOM_POINT =  this.AWARDS_STEP * 2 + this.AWARDS_STEP;
 
-    this.SUDOKU_ITEM_MARGIN =   (this.sudokuSize / this.AWARDS_ROW_LENGTH) / 6;
-    this.SUDOKU_ITEM_SIZE =     (this.sudokuSize / this.AWARDS_ROW_LENGTH) - this.SUDOKU_ITEM_MARGIN;
-    this.SUDOKU_ITEM_TXT_SIZE = `bold ${this.SUDOKU_ITEM_SIZE * .12}px Helvetica`;
+    this.SUDOKU_ITEM_MARGIN =   (this.sudokuSize / this.AWARDS_ROW_LENGTH) / 6; // 奖项之间的间距值
+    this.SUDOKU_ITEM_SIZE =     (this.sudokuSize / this.AWARDS_ROW_LENGTH) - this.SUDOKU_ITEM_MARGIN; // 奖项块的大小值
+    this.SUDOKU_ITEM_TEXT_STYLE = `bold ${this.SUDOKU_ITEM_SIZE * .12}px Helvetica`; // 奖项块的文本样式
 
-    this.BUTTON_SIZE = this.sudokuSize - (this.SUDOKU_ITEM_SIZE * 2 + this.SUDOKU_ITEM_MARGIN * 3);
-    this.BUTTON_TEXT_SIZE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`;
+    this.BUTTON_SIZE = this.sudokuSize - (this.SUDOKU_ITEM_SIZE * 2 + this.SUDOKU_ITEM_MARGIN * 3); // 抽奖按钮大小值
+    this.BUTTON_TEXT_STYLE = `bold ${this.BUTTON_SIZE * .12}px Helvetica`; // 抽奖按钮文本样式
 
-    this._positions = []; // 各奖项坐标
+    this._positions = []; // 各奖项块位置坐标
     this._buttonPosition = {}; // 按钮坐标
 
-    this._isAnimate = false;
-    this._jumpIndex = Math.floor(Math.random() * this.AWARDS_LEN);
+    this._isAnimate = false; // 是否抽奖进行中
+    this._jumpIndex = 0; // 当前跳动奖项块索引值 Math.floor(Math.random() * this.AWARDS_LEN)
     this._jumpingTime = 0;
     this._jumpTotalTime;
     this._jumpChange;
@@ -85,7 +87,7 @@ export default class LuckySudoku extends Global {
                   this.SUDOKU_ITEM_SIZE,
                   this.sudokuItemRadius,
                   this.awards[i].type, this.awards[i].content,
-                  this.SUDOKU_ITEM_TXT_SIZE,
+                  this.SUDOKU_ITEM_TEXT_STYLE,
                   this.sudokuItemUnactiveTxtColor,
                   this.sudokuItemUnactiveColor,
                   this.sudokuItemUnactiveShadowColor
@@ -107,7 +109,7 @@ export default class LuckySudoku extends Global {
                   this.SUDOKU_ITEM_SIZE,
                   this.sudokuItemRadius,
                   this.awards[i].type, this.awards[i].content,
-                  this.SUDOKU_ITEM_TXT_SIZE,
+                  this.SUDOKU_ITEM_TEXT_STYLE,
                   this.sudokuItemUnactiveTxtColor,
                   this.sudokuItemUnactiveColor,
                   this.sudokuItemUnactiveShadowColor
@@ -130,7 +132,7 @@ export default class LuckySudoku extends Global {
                   this.SUDOKU_ITEM_SIZE,
                   this.sudokuItemRadius,
                   this.awards[i].type, this.awards[i].content,
-                  this.SUDOKU_ITEM_TXT_SIZE,
+                  this.SUDOKU_ITEM_TEXT_STYLE,
                   this.sudokuItemUnactiveTxtColor,
                   this.sudokuItemUnactiveColor,
                   this.sudokuItemUnactiveShadowColor
@@ -153,7 +155,7 @@ export default class LuckySudoku extends Global {
                   this.SUDOKU_ITEM_SIZE,
                   this.sudokuItemRadius,
                   this.awards[i].type, this.awards[i].content,
-                  this.SUDOKU_ITEM_TXT_SIZE,
+                  this.SUDOKU_ITEM_TEXT_STYLE,
                   this.sudokuItemUnactiveTxtColor,
                   this.sudokuItemUnactiveColor,
                   this.sudokuItemUnactiveShadowColor
@@ -246,7 +248,7 @@ export default class LuckySudoku extends Global {
     // ----- 绘制文字
     context.save();
     context.fillStyle = this.buttonTextColor;
-    context.font = this.BUTTON_TEXT_SIZE;
+    context.font = this.BUTTON_TEXT_STYLE;
     context.translate(
         x + this.BUTTON_SIZE / 2 - context.measureText(this.buttonFont).width / 2, 
         y + this.BUTTON_SIZE / 2 + 10
@@ -270,24 +272,14 @@ export default class LuckySudoku extends Global {
     );
   };
 
+  /**
+   * 执行动画
+   * @author hongwenqing(elenh)
+   */
   sudokuItemMove() {
     const context = this.ctx;
 
     this._isAnimate = true;
-    
-    if (this._jumpIndex < this.AWARDS_LEN - 1)        this._jumpIndex ++;
-    else if (this._jumpIndex >= this.AWARDS_LEN -1 )  this._jumpIndex = 0;
-
-    this._jumpingTime += 100;
-
-    if (this._jumpingTime >= this._jumpTotalTime) {
-      this._isAnimate = false;
-      if (this.finish) {
-        if (this._jumpIndex != 0)       this.finish(this._jumpIndex - 1)
-        else if (this._jumpIndex === 0) this.finish(this.AWARDS_LEN - 1);
-      }
-      return;
-    };
 
     this.drawSudoku();
     if (this.hasButton) this.drawButton();
@@ -299,20 +291,48 @@ export default class LuckySudoku extends Global {
       this.sudokuItemRadius, 
       this.awards[this._jumpIndex].type,
       this.awards[this._jumpIndex].content,
-      this.SUDOKU_ITEM_TXT_SIZE, 
+      this.SUDOKU_ITEM_TEXT_STYLE,
       this.sudokuItemActiveTxtColor,
       this.sudokuItemActiveColor,
       this.sudokuItemActiveShadowColor
     );
 
-    setTimeout(this.sudokuItemMove.bind(this), 50 + super.easeOut(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime));
+    if (this._jumpIndex < this.AWARDS_LEN - 1)        this._jumpIndex ++;
+    else if (this._jumpIndex >= this.AWARDS_LEN -1)  this._jumpIndex = 0;
+
+    this._jumpingTime += 100;
+
+    if (this._jumpingTime <= this._jumpTotalTime) {
+      const step = super.easeOut(this._jumpingTime, 0, this._jumpChange, this._jumpTotalTime);
+    
+      setTimeout(
+        this.sudokuItemMove.bind(this),
+        step + 50
+      );
+    } else {
+      this._isAnimate = false;
+      if (this.finish) {
+        if (this._jumpIndex != 0)       this.finish(this._jumpIndex - 1);
+        else if (this._jumpIndex === 0) this.finish(this.AWARDS_LEN - 1);
+      }
+    }
+    
+  };
+
+  getAwardedJumpEnd(index) {
+    const each_steps = [this.SUDOKU_ITEM_MARGIN]
+    for (let i = 0; i < this.AWARDS_LEN; i++) {
+      each_steps.push(each_steps[i] + this.SUDOKU_ITEM_MARGIN)
+    }
+    console.log(each_steps);
+    return each_steps[index]
   };
 
   luckyDraw() {
-    console.log(this._jumpIndex);
     this._jumpingTime = 0;
-    this._jumpTotalTime = Math.random() * 1000 + this.duration;
-    this._jumpChange = Math.random() * 3 + this.velocity;
+    this._jumpTotalTime = this.duration + 1000; // Math.random() * 1000 + this.duration
+    this._jumpChange = Math.random() * 3 + this.velocity; //  Math.random() * 3 + this.velocity;
+    
     this.sudokuItemMove();
   };
 

@@ -13,7 +13,7 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <div>
       <canvas id="canvas" width="500" height="500"></canvas>
     </div>
 
@@ -42,18 +42,7 @@
         ],
         finish: function (index) {
           console.log(index);
-          switch (this.awards[index].type) {
-            case "text":
-              alert("🎉恭喜您中得：" + this.awards[index].content);
-              break;
-            case "image":
-              if (index === 4) alert("🎉恭喜您中得战争磨坊水冷机");
-              else if (index === 6) alert("🎉恭喜您中得魔声耳机");
-              break;
-            case "losing":
-              alert("💔很遗憾，您没有中奖~");
-              break;
-          }
+          console.log(this.awards);
         }
       })
 
