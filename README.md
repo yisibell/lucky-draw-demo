@@ -1,14 +1,8 @@
-# aidol-lucky-draw
+# lucky-draw-demo
 
-A lucky draw plugin for web.
+A lucky draw demo.
 
-# Installation
-
-**NPM**
-
-``` bash
-$ npm i @aidol/lucky-draw -S
-```
+# Usage
 
 **SCRIPT TAG**
 
@@ -27,8 +21,6 @@ $ npm i @aidol/lucky-draw -S
   </script>
 </body>
 ```
-
-# Usage
 
 ## 幸运大转盘
 
